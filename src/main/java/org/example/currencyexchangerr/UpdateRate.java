@@ -1,10 +1,14 @@
 package org.example.currencyexchangerr;
 
+
+
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -17,18 +21,26 @@ public class UpdateRate extends HttpServlet {
 
     private static final String DB_URL = "jdbc:sqlite:C:/Programming/Maven/projects/CurrencyExchanger/db/exchanger.db";
 
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        if ("PATCH".equalsIgnoreCase(req.getMethod())) {
-            doPatch(req, resp);
-        }
-        resp.sendError(405, "Only PATCH method supported");
-    }
+//    @Override
+//    protected void service(HttpServletRequest req, HttpServletResponse resp)
+//            throws ServletException, IOException {
+//        String body = req.getReader().lines().collect(Collectors.joining());
+//        System.out.println(body);
+//        //req.setCharacterEncoding("charset=UTF-8");
+//        //req.setCharacterEncoding(StandardCharsets.UTF_8.name());
+//        if ("PATCH".equalsIgnoreCase(req.getMethod())) {
+//            doPatch(req, resp);
+//        }
+//        resp.sendError(405, "Only PATCH method supported");
+//    }
 
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
+
+        String body = request.getReader().lines().collect(Collectors.joining());
+        System.out.println(body);
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -40,6 +52,10 @@ public class UpdateRate extends HttpServlet {
         double rate;
 
         try {
+            String str1 = request.getParameter("base");
+            String str2 = request.getParameter("target");
+            String str3 = request.getParameter("rate");
+            System.out.println(str1 + str2 + str3);
             base = Integer.parseInt(request.getParameter("base"));
             target = Integer.parseInt(request.getParameter("target"));
             rate = Double.parseDouble(request.getParameter("rate"));

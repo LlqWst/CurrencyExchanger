@@ -1,122 +1,106 @@
 package org.example.dao;
 
-import DataSource.AppContextListener;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import DataSource.CurrenciesListener;
 import org.example.entity.Currency;
+import org.example.handler.CurrencyExistException;
+import org.example.handler.NotFoundException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class CurrenciesDao implements DAO<Currency, String> {
+public class CurrenciesDao {
 
-    private static final String TABLE_NAME = "Currencies";
+    public Currency getByCode(String code) throws SQLException {
+        String query = "SELECT * FROM Currencies WHERE Code = ?";
 
-    @Override
-    public Currency get(String code) throws SQLException {
-        Connection conn = AppContextListener.getConnection();
+        try (Connection connection = CurrenciesListener.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, code);
+            try (ResultSet rs = statement.executeQuery()) {
 
-        String query = "SELECT ID, FullName, Sign FROM " + TABLE_NAME + " WHERE Code = ?";
-        PreparedStatement statement = conn.prepareStatement(query);
-        statement.setString(1, code);
-        ResultSet rs = statement.executeQuery();
+                if (!rs.next()) {
+                    throw new NotFoundException("Currency not found");
+                }
 
-        int id = rs.getInt("ID");
-        String fullName = rs.getString("FullName");
-        String sign = rs.getString("Sign");
-        return new Currency(id, code, fullName, sign);
+                int id = rs.getInt("ID");
+                String fullName = rs.getString("FullName");
+                String sign = rs.getString("Sign");
 
-    }
+                Currency currency = new Currency();
+                currency.setId(id);
+                currency.setCode(code);
+                currency.setFullName(fullName);
+                currency.setSign(sign);
 
-    @Override
-    public List<Currency> getAll() throws SQLException {
-        Connection conn = AppContextListener.getConnection();
-
-        String query = "SELECT * FROM " + TABLE_NAME;
-        Statement statement = conn.createStatement();
-        ResultSet rs = statement.executeQuery(query);
-
-        List<Currency> currencies = new ArrayList<>();
-
-        while (rs.next()){
-            int id = rs.getInt("ID");
-            String code = rs.getString("Code");
-            String fullName = rs.getString("FullName");
-            String sign = rs.getString("Sign");
-            Currency currency = new Currency(id, code, fullName, sign);
-            currencies.add(currency);
-        }
-
-        return currencies;
-    }
-
-    @Override
-    public Currency save(Currency currency) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Currency update(Currency currency) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void delete(String code) throws SQLException {
-
-    }
-
-    private ConcurrentHashMap<Integer, Currency> currencies;
-    private AtomicInteger key;
-
-    public CurrenciesDao(){
-        this.currencies = new ConcurrentHashMap<>();
-        key = new AtomicInteger();
-
-        this.addCurrency(new Currency("ipk", "sds", "&s"));
-        this.addCurrency(new Currency("usr", "Doll", "$"));
-        this.addCurrency(new Currency("rub", "rus Rubl", "RR"));
-    }
-
-    public  String findAllCurrencies() throws IllegalAccessException {
-        List<Currency> list = new ArrayList<>(this.currencies.values());
-        return toJson(list);
-    }
-
-    public boolean createCurrency(String jsonPayload){
-        if(jsonPayload == null){
-            return false;
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            Currency currency = mapper.readValue(jsonPayload, Currency.class);
-            if(currency != null){
-                this.addCurrency(currency);
-                return true;
+                return currency;
             }
-        } catch (Exception e) {}
-        return false;
-
-    }
-
-    private String toJson(Object list){
-        if(list == null){
-            return null;
         }
-        String json = null;
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            json = mapper.writeValueAsString(list);
-        } catch (Exception e){}
-        return json;
     }
 
-    private boolean addCurrency (Currency currency){
-        int id = key.incrementAndGet();
-        currency.setId(id);
-        this.currencies.put(id, currency);
-        return true;
+    public List<Currency> getAll() throws SQLException{
+        String query = "SELECT * FROM Currencies";
+
+        try (Connection connection = CurrenciesListener.getConnection()) {
+            Statement statement = connection.createStatement();
+            try(ResultSet rs = statement.executeQuery(query)) {
+                List<Currency> currencies = new ArrayList<>();
+                while (rs.next()) {
+                    int id = rs.getInt("ID");
+                    String code = rs.getString("Code");
+                    String fullName = rs.getString("FullName");
+                    String sign = rs.getString("Sign");
+
+                    Currency currency = new Currency();
+                    currency.setId(id);
+                    currency.setCode(code);
+                    currency.setFullName(fullName);
+                    currency.setSign(sign);
+                    currencies.add(currency);
+                }
+
+                return currencies;
+            }
+        }
+    }
+
+    public Currency save(Currency currency) throws SQLException {
+        String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)";
+
+        if (isExist(currency.getCode())) {
+            throw new CurrencyExistException("Code already exist");
+        }
+
+        String code = currency.getCode();
+        String fullName = currency.getFullName();
+        String sign = currency.getSign();
+
+        try (Connection connection = CurrenciesListener.getConnection()) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, code);
+                statement.setString(2, fullName);
+                statement.setString(3, sign);
+                statement.executeUpdate();
+                ResultSet rs = statement.getGeneratedKeys();
+                if (rs.next()) {
+                    currency.setId(rs.getInt(1));
+                }
+            }
+            return currency;
+        }
+    }
+
+    private boolean isExist(String code) throws SQLException {
+        String query = "SELECT ID FROM Currencies WHERE Code = ?";
+
+        try (Connection connection = CurrenciesListener.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, code);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
 }

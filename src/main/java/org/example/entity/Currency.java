@@ -8,17 +8,6 @@ public class Currency {
 
     public Currency(){}
 
-    public Currency(String code, String fullName, String sign) {
-        this.code = code;
-        this.fullName = fullName;
-        this.sign = sign;
-    }
-
-    public Currency(int id, String code, String fullName, String sign) {
-        this(code, fullName, sign);
-        this.id = id;
-    }
-
     public int getId() {
         return id;
     }

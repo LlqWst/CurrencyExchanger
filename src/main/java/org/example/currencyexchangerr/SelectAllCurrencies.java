@@ -3,7 +3,7 @@ package org.example.currencyexchangerr;
 import java.io.*;
 import java.sql.*;
 
-import DataSource.AppContextListener;
+import DataSource.CurrenciesListener;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
@@ -31,7 +31,7 @@ public class SelectAllCurrencies extends HttpServlet {
 
 
         response.setContentType("text/html");
-        try (Connection conn = AppContextListener.getConnection()) {
+        try (Connection conn = CurrenciesListener.getConnection()) {
 
             String query = "SELECT ID, Code, FullName, Sign FROM Currencies";
             PreparedStatement statement = conn.prepareStatement(query);
