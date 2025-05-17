@@ -2,8 +2,8 @@ package org.example.entity;
 
 public class Currency {
     private int id;
+    private String name;
     private String code;
-    private String fullName;
     private String sign;
 
     public Currency(){}
@@ -16,6 +16,14 @@ public class Currency {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getCode() {
         return code;
     }
@@ -24,13 +32,6 @@ public class Currency {
         this.code = code;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
 
     public String getSign() {
         return sign;

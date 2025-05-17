@@ -1,24 +1,27 @@
 package org.example.controller;
 
-import java.io.*;
-import java.util.List;
-
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
-import org.example.dto.CurrencyDto;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.example.dto.ExchangePairDto;
+import org.example.dto.ExchangeRateDto;
 import org.example.handler.custom_exceptions.BadRequestException;
 import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
-import org.example.service.CurrenciesService;
+import org.example.service.ExchangeRatesService;
+
+import java.io.IOException;
+import java.util.List;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.example.handler.ErrorMessages.*;
 
-@WebServlet("/currencies/*")
-public class CurrenciesController extends HttpServlet{
+@WebServlet("/exchangeRates/*")
+public class ExchangeRatesController extends HttpServlet{
 
-    private CurrenciesService currenciesService;
+    private ExchangeRatesService exchangeRatesService;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -38,33 +41,23 @@ public class CurrenciesController extends HttpServlet{
 
     @Override
     public void init(){
-        this.currenciesService = new CurrenciesService();
+        this.exchangeRatesService = new ExchangeRatesService();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo == null) {
-                List<CurrencyDto> currenciesDto = currenciesService.getAll();
-                String jsonResponse = ResponseUtils.toJson(currenciesDto);
-                ResponseUtils.sendResponse(res, jsonResponse, SC_OK);
-                return;
+            if(pathInfo != null) {
+                ResponseUtils.sendError(res, INCORRECT_PATH_VARIABLES.getMessage(), SC_BAD_REQUEST);
             }
-            if (pathInfo.equals("/")) {
-                ResponseUtils.sendError(res, MISSING_CURRENCY.getMessage(), SC_BAD_REQUEST);
-                return;
-            }
-            String code = pathInfo.split("/")[1];
-            CurrencyDto dto = new CurrencyDto();
-            dto.setCode(code);
-            dto = currenciesService.get(dto);
-            String jsonResponse = ResponseUtils.toJson(dto);
+            List<ExchangeRateDto> exRatesDto = exchangeRatesService.getAll();
+            String jsonResponse = ResponseUtils.toJson(exRatesDto);
             ResponseUtils.sendResponse(res, jsonResponse, SC_OK);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (NotFoundException e){
-            ResponseUtils.sendError(res, MOT_EXIST_CURRENCY.getMessage(), e.getStatusCode());
+            ResponseUtils.sendError(res, MOT_EXIST_CURRENCY.getMessage() + " " + e.getMessage(), e.getStatusCode());
         } catch (Exception e) {
             ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }
@@ -74,24 +67,25 @@ public class CurrenciesController extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
         String pathInfo = req.getPathInfo();
         if(pathInfo != null){
-            ResponseUtils.sendError(res, INCORRECT_PATH_VARIABLES.getMessage(), SC_BAD_REQUEST);
+            ResponseUtils.sendError(res, INCORRECT_URL.getMessage(), SC_BAD_REQUEST);
             return;
         }
-        String name = req.getParameter("name");
-        String code = req.getParameter("code");
-        String sign = req.getParameter("sign");
+        String baseCurrency = req.getParameter("baseCurrencyCode");
+        String targetCurrency = req.getParameter("targetCurrencyCode");
+        String rate = req.getParameter("rate");
         try {
-            CurrencyDto dto = new CurrencyDto();
-            dto.setName(name);
-            dto.setCode(code);
-            dto.setSign(sign);
-            dto = currenciesService.save(dto);
-            String json = ResponseUtils.toJson(dto);
+            ExchangePairDto pairDto = new ExchangePairDto();
+            pairDto.setPair(baseCurrency, targetCurrency);
+            pairDto.setRate(rate);
+            ExchangeRateDto exRateDto = exchangeRatesService.save(pairDto);
+            String json = ResponseUtils.toJson(exRateDto);
             ResponseUtils.sendResponse(res, json, SC_ACCEPTED);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (ExistInDbException e){
-            ResponseUtils.sendError(res, EXIST_CURRENCY.getMessage(), e.getStatusCode());
+        } catch (NotFoundException e) {
+            ResponseUtils.sendError(res, MOT_EXIST_CURRENCY.getMessage() + " " + e.getMessage(), e.getStatusCode());
+        } catch (ExistInDbException e) {
+            ResponseUtils.sendError(res, EXIST_PAIR.getMessage(), e.getStatusCode());
         } catch (Exception e){
             ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }

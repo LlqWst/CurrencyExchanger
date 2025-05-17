@@ -9,6 +9,11 @@ public class CurrenciesExceptions extends RuntimeException {
         this.statusCode = statusCode;
     }
 
+    public CurrenciesExceptions(int statusCode) {
+        super();
+        this.statusCode = statusCode;
+    }
+
     public int getStatusCode() {
         return statusCode;
     }
