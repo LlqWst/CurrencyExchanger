@@ -55,15 +55,11 @@ public class ExchangeRatesDao {
                     BigDecimal rate = rs.getBigDecimal("Rate")
                             .divide(SCALE_MULTIPLY, SCALE, RoundingMode.HALF_UP)
                             .stripTrailingZeros();
-                    ExchangeRate exRate = new ExchangeRate();
-                    exRate.setId(id);
                     Currency baseCurrency = new Currency();
                     Currency targetCurrency = new Currency();
                     baseCurrency.setId(baseId);
                     targetCurrency.setId(targetId);
-                    exRate.setBaseCurrency(baseCurrency);
-                    exRate.setTargetCurrency(targetCurrency);
-                    exRate.setRate(rate);
+                    ExchangeRate exRate = setExRate(id, baseCurrency, targetCurrency, rate);
                     exchangeRates.add(exRate);
                 }
 
@@ -71,6 +67,16 @@ public class ExchangeRatesDao {
             }
         }
     }
+
+    private ExchangeRate setExRate(int id, Currency base, Currency target, BigDecimal rate){
+        ExchangeRate exRate = new ExchangeRate();
+        exRate.setId(id);
+        exRate.setBaseCurrency(base);
+        exRate.setTargetCurrency(target);
+        exRate.setRate(rate);
+        return exRate;
+    }
+
 
     public ExchangeRate save(ExchangeRate exRate) throws SQLException {
         String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";

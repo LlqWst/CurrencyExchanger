@@ -27,13 +27,8 @@ public class CurrenciesDao {
                 String name = rs.getString("FullName");
                 String sign = rs.getString("Sign");
 
-                Currency currency = new Currency();
-                currency.setId(id);
-                currency.setName(name);
-                currency.setCode(code);
-                currency.setSign(sign);
+                return setCurrency(id, name, code, sign);
 
-                return currency;
             }
         }
     }
@@ -54,13 +49,7 @@ public class CurrenciesDao {
                 String code = rs.getString("Code");
                 String sign = rs.getString("Sign");
 
-                Currency currency = new Currency();
-                currency.setId(id);
-                currency.setName(name);
-                currency.setCode(code);
-                currency.setSign(sign);
-
-                return currency;
+                return setCurrency(id, name, code, sign);
             }
         }
     }
@@ -78,11 +67,7 @@ public class CurrenciesDao {
                     String code = rs.getString("Code");
                     String sign = rs.getString("Sign");
 
-                    Currency currency = new Currency();
-                    currency.setId(id);
-                    currency.setName(name);
-                    currency.setCode(code);
-                    currency.setSign(sign);
+                    Currency currency = setCurrency(id, name, code, sign);
                     currencies.add(currency);
                 }
 
@@ -116,6 +101,15 @@ public class CurrenciesDao {
             }
             return currency;
         }
+    }
+
+    private Currency setCurrency(int id, String name, String code, String sign) {
+        Currency currency = new Currency();
+        currency.setId(id);
+        currency.setName(name);
+        currency.setCode(code);
+        currency.setSign(sign);
+        return currency;
     }
 
     private boolean isExist(String code) throws SQLException {
