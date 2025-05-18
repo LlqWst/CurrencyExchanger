@@ -54,11 +54,16 @@ public class Validator {
     public BigDecimal parsRate(String rate){
         if(rate == null){
             throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "rate");
-        };
+        }
         try {
             rate = rate.replace(",", ".");
-            BigDecimal result = new BigDecimal(rate);
-            result = result.setScale(6, RoundingMode.HALF_UP);
+            int dotIndex = rate.indexOf('.');
+            if (dotIndex != -1 && rate.length() - dotIndex - 1 > 6) {
+                throw new BadRequestException(INCORRECT_RATE.getMessage());
+            }
+            BigDecimal result = new BigDecimal(rate)
+                    .setScale(6, RoundingMode.HALF_UP)
+                    .stripTrailingZeros();
             BigDecimal min = new BigDecimal("0.000001");
             BigDecimal max = new BigDecimal("999999999");
             if(result.compareTo(min) < 0 || result.compareTo(max) > 0){
@@ -68,6 +73,13 @@ public class Validator {
         } catch (Exception e){
             throw new BadRequestException(INCORRECT_RATE.getMessage());
         }
+
+    }
+
+    public String patchParsValue(String str){
+        return str
+                .replace("rate=", "")
+                .replace("%2C",",");
 
     }
 

@@ -85,12 +85,12 @@ public class ExchangeRatesService {
 
     public ExchangeRateDto save(ExchangePairDto exPairDto){
         try {
-            String baseCode = exPairDto.baseCurrencyCode();
-            String targetCode = exPairDto.targetCurrencyCode();
+            String baseCode = exPairDto.getBaseCurrencyCode();
+            String targetCode = exPairDto.getTargetCurrencyCode();
 
             validator.validateCode(baseCode);
             validator.validateCode(targetCode);
-            BigDecimal rate = validator.parsRate(exPairDto.rate());
+            BigDecimal rate = validator.parsRate(exPairDto.getRate());
 
             CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
             CurrencyDto targetCurrencyDto = currenciesService.getByCode(targetCode);
@@ -112,6 +112,39 @@ public class ExchangeRatesService {
         } catch (ExistInDbException e) {
             throw new ExistInDbException();
         } catch (Exception e) {
+            throw new DataBaseException();
+        }
+    }
+
+    public ExchangeRateDto update (ExchangePairDto exPairDto) {
+        try {
+            String pair = exPairDto.getPair();
+            validator.validatePair(pair);
+            String baseCode = pair.substring(0, 3);
+            String targetCode = pair.substring(3, 6);
+
+            String encryptedRate = exPairDto.getRate();
+            String decryptedRate = validator.patchParsValue(encryptedRate);
+            BigDecimal rate = validator.parsRate(decryptedRate);
+
+            CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
+            CurrencyDto targetCurrencyDto = currenciesService.getByCode(targetCode);
+
+            Currency baseCurrency = currenciesService.toCurrency(baseCurrencyDto);
+            Currency targetCurrency = currenciesService.toCurrency(targetCurrencyDto);
+
+            ExchangeRate exRate = new ExchangeRate();
+            exRate.setBaseCurrency(baseCurrency);
+            exRate.setTargetCurrency(targetCurrency);
+            exRate.setRate(rate);
+            exRate = exchangeRatesDao.update(exRate);
+
+            return toExchangeRateDto(exRate);
+        } catch (BadRequestException e) {
+            throw new BadRequestException (e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e){
             throw new DataBaseException();
         }
     }

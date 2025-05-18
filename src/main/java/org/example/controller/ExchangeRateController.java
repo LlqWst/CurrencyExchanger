@@ -4,6 +4,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
 import org.example.handler.custom_exceptions.BadRequestException;
 import org.example.handler.custom_exceptions.DataBaseException;
@@ -12,6 +13,7 @@ import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.ExchangeRatesService;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.example.handler.ErrorMessages.*;
@@ -28,7 +30,7 @@ public class ExchangeRateController extends HttpServlet{
             if ("GET".equalsIgnoreCase(req.getMethod())) {
                 doGet(req, resp);
             } else if ("PATCH".equalsIgnoreCase(req.getMethod())) {
-                doPost(req, resp);
+                doPatch(req, resp);
             } else {
                 ResponseUtils.sendError(resp, INCORRECT_METHOD.getMessage(), SC_METHOD_NOT_ALLOWED);
             }
@@ -61,30 +63,30 @@ public class ExchangeRateController extends HttpServlet{
         }
     }
 
-//    @Override
-//    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
-//        String pathInfo = req.getPathInfo();
-//        if(pathInfo != null){
-//            ResponseUtils.sendError(res, INCORRECT_PATH_VARIABLES.getMessage(), SC_BAD_REQUEST);
-//            return;
-//        }
-//        String baseCurrency = req.getParameter("baseCurrencyCode");
-//        String targetCurrency = req.getParameter("targetCurrencyCode");
-//        String rate = req.getParameter("rate");
-//        try {
-//            ExchangePairDto pairDto = new ExchangePairDto();
-//            pairDto.setPair(baseCurrency, targetCurrency);
-//            pairDto.setRate(rate);
-//            ExchangeRateDto exRateDto = exchangeRateService.save(pairDto);
-//            String json = ResponseUtils.toJson(exRateDto);
-//            ResponseUtils.sendJson(res, json, SC_ACCEPTED);
-//        } catch (BadRequestException e) {
-//            ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-//        } catch (ExistInDbException e){
-//            ResponseUtils.sendError(res, EXIST_CURRENCY.getMessage(), e.getStatusCode());
-//        } catch (Exception e){
-//            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @Override
+    protected void doPatch (HttpServletRequest req, HttpServletResponse res) throws IOException {
+        try {
+            String pathInfo = req.getPathInfo();
+            if(pathInfo == null || pathInfo.equals("/")){
+                throw new BadRequestException(MISSING_PAIR.getMessage());
+            }
+            String pair = pathInfo.split("/")[1];
+            String encryptedRate = req.getReader()
+                    .lines()
+                    .collect(Collectors
+                            .joining());
+            ExchangePairDto pairDto = new ExchangePairDto();
+            pairDto.setPair(pair);
+            pairDto.setRate(encryptedRate);
+            ExchangeRateDto exRateDto = exchangeRateService.update(pairDto);
+            ResponseUtils.sendJson(res, exRateDto, SC_OK);
+        } catch (BadRequestException e) {
+            ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
+        } catch (NotFoundException e) {
+            ResponseUtils.sendError(res, NOT_EXIST_CURRENCY.getMessage() + e.getMessage(), e.getStatusCode());
+        }  catch (DataBaseException e){
+            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
+        }
+    }
 
 }

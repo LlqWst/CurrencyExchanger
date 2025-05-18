@@ -71,10 +71,12 @@ public class ExchangeRatesController extends HttpServlet{
             String baseCurrency = req.getParameter("baseCurrencyCode");
             String targetCurrency = req.getParameter("targetCurrencyCode");
             String rate = req.getParameter("rate");
-            ExchangePairDto exPairDto = new ExchangePairDto(
-                    baseCurrency, targetCurrency, rate);
+            ExchangePairDto exPairDto = new ExchangePairDto();
+            exPairDto.setBaseCurrencyCode(baseCurrency);
+            exPairDto.setTargetCurrencyCode(targetCurrency);
+            exPairDto.setRate(rate);
             ExchangeRateDto exRateDto = exchangeRatesService.save(exPairDto);
-            ResponseUtils.sendJson(res, exRateDto, SC_ACCEPTED);
+            ResponseUtils.sendJson(res, exRateDto, SC_CREATED);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (NotFoundException e) {

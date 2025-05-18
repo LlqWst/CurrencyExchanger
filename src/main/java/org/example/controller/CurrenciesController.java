@@ -81,7 +81,7 @@ public class CurrenciesController extends HttpServlet{
             currencyDto.setCode(code);
             currencyDto.setSign(sign);
             currencyDto = currenciesService.save(currencyDto);
-            ResponseUtils.sendJson(res, currencyDto, SC_ACCEPTED);
+            ResponseUtils.sendJson(res, currencyDto, SC_CREATED);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (ExistInDbException e){

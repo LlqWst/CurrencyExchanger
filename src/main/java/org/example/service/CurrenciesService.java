@@ -31,7 +31,7 @@ public class CurrenciesService implements ServiceCurrencies {
             throw new BadRequestException (e.getMessage());
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new DataBaseException();
         }
     }
@@ -44,7 +44,7 @@ public class CurrenciesService implements ServiceCurrencies {
             throw new BadRequestException ();
         } catch (NotFoundException e) {
             throw new NotFoundException();
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new DataBaseException();
         }
     }

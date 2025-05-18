@@ -20,10 +20,13 @@ public class ExchangeRatesDao {
     public ExchangeRate get(ExchangeRate exRate) throws SQLException {
         String query = "SELECT ID, Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
+        int baseId = exRate.getBaseCurrency().getId();
+        int targetId = exRate.getTargetCurrency().getId();
+
         try (Connection connection = CurrenciesListener.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, exRate.getBaseCurrency().getId());
-            statement.setInt(2, exRate.getTargetCurrency().getId());
+            statement.setInt(1, baseId);
+            statement.setInt(2, targetId);
             try (ResultSet rs = statement.executeQuery()) {
 
                 if (!rs.next()) {
@@ -68,23 +71,12 @@ public class ExchangeRatesDao {
         }
     }
 
-    private ExchangeRate setExRate(int id, Currency base, Currency target, BigDecimal rate){
-        ExchangeRate exRate = new ExchangeRate();
-        exRate.setId(id);
-        exRate.setBaseCurrency(base);
-        exRate.setTargetCurrency(target);
-        exRate.setRate(rate);
-        return exRate;
-    }
-
-
     public ExchangeRate save(ExchangeRate exRate) throws SQLException {
         String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";
 
         int base = exRate.getBaseCurrency().getId();
         int target = exRate.getTargetCurrency().getId();
         BigDecimal bigRate = exRate.getRate();
-
         int intRate = bigRate.multiply(SCALE_MULTIPLY).intValueExact();
 
         if (isExist(base, target)) {
@@ -107,6 +99,40 @@ public class ExchangeRatesDao {
             }
             return exRate;
         }
+    }
+
+    public ExchangeRate update(ExchangeRate exRate) throws SQLException {
+        String query = "UPDATE ExchangeRates SET Rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ? RETURNING ID";
+
+        int base = exRate.getBaseCurrency().getId();
+        int target = exRate.getTargetCurrency().getId();
+        BigDecimal bigRate = exRate.getRate();
+        int intRate = bigRate.multiply(SCALE_MULTIPLY).intValueExact();
+
+        try (Connection connection = CurrenciesListener.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, intRate);
+                statement.setInt(2, base);
+                statement.setInt(3, target);
+                ResultSet rs = statement.executeQuery();
+
+                if (rs.next()) {
+                    exRate.setId(rs.getInt("ID"));
+                } else {
+                    throw new SQLException();
+                }
+            }
+            return exRate;
+        }
+    }
+
+    private ExchangeRate setExRate(int id, Currency base, Currency target, BigDecimal rate){
+        ExchangeRate exRate = new ExchangeRate();
+        exRate.setId(id);
+        exRate.setBaseCurrency(base);
+        exRate.setTargetCurrency(target);
+        exRate.setRate(rate);
+        return exRate;
     }
 
     private boolean isExist(int baseCode, int targetCode) throws SQLException {
