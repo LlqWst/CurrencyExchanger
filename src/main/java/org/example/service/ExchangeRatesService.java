@@ -1,6 +1,5 @@
 package org.example.service;
 
-import org.example.dao.CurrenciesDao;
 import org.example.dao.ExchangeRatesDao;
 import org.example.dto.CurrencyDto;
 import org.example.dto.ExchangePairDto;
@@ -8,45 +7,51 @@ import org.example.dto.ExchangeRateDto;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
 import org.example.handler.custom_exceptions.BadRequestException;
+import org.example.handler.custom_exceptions.DataBaseException;
 import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
+import org.example.validation.Validator;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRatesService {
 
     private final ExchangeRatesDao exchangeRatesDao;
-    private final CurrenciesDao currenciesDao;
+    private final CurrenciesService currenciesService;
+    private final Validator validator;
 
     public ExchangeRatesService() {
         this.exchangeRatesDao = new ExchangeRatesDao();
-        this.currenciesDao = new CurrenciesDao();
+        this.currenciesService = new CurrenciesService();
+        this.validator = new Validator();
     }
 
-        public ExchangeRateDto get(ExchangePairDto exPairDto) {
+        public ExchangeRateDto get(String exPair) {
         try {
-            CurrencyDto baseCurrencyDto = new CurrencyDto();
-            CurrencyDto targetCurrencyDto = new CurrencyDto();
-            baseCurrencyDto.setCode(exPairDto.getBaseCurrency());
-            targetCurrencyDto.setCode(exPairDto.getTargetCurrency());
+            validator.validatePair(exPair);
+            String baseCode = exPair.substring(0, 3);
+            String targetCode = exPair.substring(3, 6);
 
-            Currency baseCurrency = currenciesDao.getByCode(baseCurrencyDto);
-            Currency targetCurrency = currenciesDao.getByCode(targetCurrencyDto);
+            CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
+            CurrencyDto targetCurrencyDto = currenciesService.getByCode(targetCode);
 
-            ExchangeRateDto exRateDto = new ExchangeRateDto();
-            exRateDto.setBaseCurrency(baseCurrency);
-            exRateDto.setTargetCurrency(targetCurrency);
-            ExchangeRate exRate = exchangeRatesDao.get(exRateDto);
-            exRateDto.setId(exRate.getId());
-            exRateDto.setRate(exRate.getRate());
-            return exRateDto;
+            Currency baseCurrency = currenciesService.toCurrency(baseCurrencyDto);
+            Currency targetCurrency = currenciesService.toCurrency(targetCurrencyDto);
+
+            ExchangeRate exRate = new ExchangeRate();
+            exRate.setBaseCurrency(baseCurrency);
+            exRate.setTargetCurrency(targetCurrency);
+            exRate = exchangeRatesDao.get(exRate);
+
+            return toExchangeRateDto(exRate);
         } catch (BadRequestException e) {
-            throw new BadRequestException ();
+            throw new BadRequestException (e.getMessage());
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (Exception e){
-            throw new RuntimeException();
+            throw new DataBaseException();
         }
     }
 
@@ -55,49 +60,69 @@ public class ExchangeRatesService {
             List<ExchangeRate> exRates = exchangeRatesDao.getAll();
             List<ExchangeRateDto> exRatesDto = new ArrayList<>();
             for (ExchangeRate exRate : exRates){
-                CurrencyDto baseCurrencyDto = new CurrencyDto();
-                CurrencyDto targetCurrencyDto = new CurrencyDto();
-                baseCurrencyDto.setId(exRate.getBaseCurrency().getId());
-                targetCurrencyDto.setId(exRate.getTargetCurrency().getId());
+                int baseCode = exRate.getBaseCurrency().getId();
+                int targetCode = exRate.getTargetCurrency().getId();
 
-                ExchangeRateDto exRateDto = new ExchangeRateDto();
-                exRateDto.setId(exRate.getId());
-                exRateDto.setBaseCurrency(currenciesDao.getById(baseCurrencyDto));
-                exRateDto.setTargetCurrency(currenciesDao.getById(targetCurrencyDto));
-                exRateDto.setRate(exRate.getRate());
+                CurrencyDto baseCurrencyDto = currenciesService.get(baseCode);
+                CurrencyDto targetCurrencyDto = currenciesService.get(targetCode);
+
+                Currency baseCurrency = currenciesService.toCurrency(baseCurrencyDto);
+                Currency targetCurrency = currenciesService.toCurrency(targetCurrencyDto);
+
+                ExchangeRateDto exRateDto = new ExchangeRateDto(
+                        exRate.getId(),
+                        baseCurrency,
+                        targetCurrency,
+                        exRate.getRate()
+                );
                 exRatesDto.add(exRateDto);
             }
             return exRatesDto;
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new DataBaseException();
         }
     }
 
     public ExchangeRateDto save(ExchangePairDto exPairDto){
         try {
-            CurrencyDto baseCurrencyDto = new CurrencyDto();
-            CurrencyDto targetCurrencyDto = new CurrencyDto();
-            baseCurrencyDto.setCode(exPairDto.getBaseCurrency());
-            targetCurrencyDto.setCode(exPairDto.getTargetCurrency());
+            String baseCode = exPairDto.baseCurrencyCode();
+            String targetCode = exPairDto.targetCurrencyCode();
 
-            Currency baseCurrency = currenciesDao.getByCode(baseCurrencyDto);
-            Currency targetCurrency = currenciesDao.getByCode(targetCurrencyDto);
+            validator.validateCode(baseCode);
+            validator.validateCode(targetCode);
+            BigDecimal rate = validator.parsRate(exPairDto.rate());
 
-            ExchangeRateDto exRateDto = new ExchangeRateDto();
-            exRateDto.setBaseCurrency(baseCurrency);
-            exRateDto.setTargetCurrency(targetCurrency);
-            exRateDto.setRate(exPairDto.getRate());
-            ExchangeRate exRate = exchangeRatesDao.save(exRateDto);
-            exRateDto.setId(exRate.getId());
+            CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
+            CurrencyDto targetCurrencyDto = currenciesService.getByCode(targetCode);
 
-            return exRateDto;
+            Currency baseCurrency = currenciesService.toCurrency(baseCurrencyDto);
+            Currency targetCurrency = currenciesService.toCurrency(targetCurrencyDto);
+
+            ExchangeRate exRate = new ExchangeRate();
+            exRate.setBaseCurrency(baseCurrency);
+            exRate.setTargetCurrency(targetCurrency);
+            exRate.setRate(rate);
+            exRate = exchangeRatesDao.save(exRate);
+
+            return toExchangeRateDto(exRate);
+        } catch (BadRequestException e) {
+            throw new BadRequestException(e.getMessage());
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (ExistInDbException e) {
             throw new ExistInDbException();
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new DataBaseException();
         }
+    }
+
+    private ExchangeRateDto toExchangeRateDto (ExchangeRate exRate){
+        return new ExchangeRateDto(
+                exRate.getId(),
+                exRate.getBaseCurrency(),
+                exRate.getTargetCurrency(),
+                exRate.getRate()
+        );
     }
 
 }

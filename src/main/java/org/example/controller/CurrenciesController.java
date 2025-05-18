@@ -7,6 +7,7 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import org.example.dto.CurrencyDto;
 import org.example.handler.custom_exceptions.BadRequestException;
+import org.example.handler.custom_exceptions.DataBaseException;
 import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
@@ -47,52 +48,45 @@ public class CurrenciesController extends HttpServlet{
             String pathInfo = req.getPathInfo();
             if(pathInfo == null) {
                 List<CurrencyDto> currenciesDto = currenciesService.getAll();
-                String jsonResponse = ResponseUtils.toJson(currenciesDto);
-                ResponseUtils.sendResponse(res, jsonResponse, SC_OK);
+                ResponseUtils.sendJson(res, currenciesDto, SC_OK);
                 return;
             }
             if (pathInfo.equals("/")) {
-                ResponseUtils.sendError(res, MISSING_CURRENCY.getMessage(), SC_BAD_REQUEST);
-                return;
+                throw new BadRequestException(MISSING_CURRENCY.getMessage());
             }
             String code = pathInfo.split("/")[1];
-            CurrencyDto dto = new CurrencyDto();
-            dto.setCode(code);
-            dto = currenciesService.get(dto);
-            String jsonResponse = ResponseUtils.toJson(dto);
-            ResponseUtils.sendResponse(res, jsonResponse, SC_OK);
+            CurrencyDto currencyDto = currenciesService.getByCode(code);
+            ResponseUtils.sendJson(res, currencyDto, SC_OK);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (NotFoundException e){
-            ResponseUtils.sendError(res, MOT_EXIST_CURRENCY.getMessage(), e.getStatusCode());
-        } catch (Exception e) {
+            ResponseUtils.sendError(res, NOT_EXIST_CURRENCY.getMessage(), e.getStatusCode());
+        } catch (DataBaseException e) {
             ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String pathInfo = req.getPathInfo();
-        if(pathInfo != null){
-            ResponseUtils.sendError(res, INCORRECT_PATH_VARIABLES.getMessage(), SC_BAD_REQUEST);
-            return;
-        }
-        String name = req.getParameter("name");
-        String code = req.getParameter("code");
-        String sign = req.getParameter("sign");
         try {
-            CurrencyDto dto = new CurrencyDto();
-            dto.setName(name);
-            dto.setCode(code);
-            dto.setSign(sign);
-            dto = currenciesService.save(dto);
-            String json = ResponseUtils.toJson(dto);
-            ResponseUtils.sendResponse(res, json, SC_ACCEPTED);
+            String pathInfo = req.getPathInfo();
+            if(pathInfo != null){
+                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
+            }
+            String name = req.getParameter("name");
+            String code = req.getParameter("code");
+            String sign = req.getParameter("sign");
+            CurrencyDto currencyDto = new CurrencyDto();
+            currencyDto.setName(name);
+            currencyDto.setCode(code);
+            currencyDto.setSign(sign);
+            currencyDto = currenciesService.save(currencyDto);
+            ResponseUtils.sendJson(res, currencyDto, SC_ACCEPTED);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (ExistInDbException e){
             ResponseUtils.sendError(res, EXIST_CURRENCY.getMessage(), e.getStatusCode());
-        } catch (Exception e){
+        } catch (DataBaseException e){
             ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }
     }

@@ -4,11 +4,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.dto.CurrencyDto;
-import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
 import org.example.handler.custom_exceptions.BadRequestException;
-import org.example.handler.custom_exceptions.ExistInDbException;
+import org.example.handler.custom_exceptions.DataBaseException;
 import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.ExchangeRatesService;
@@ -29,7 +27,7 @@ public class ExchangeRateController extends HttpServlet{
         try {
             if ("GET".equalsIgnoreCase(req.getMethod())) {
                 doGet(req, resp);
-            } else if ("POST".equalsIgnoreCase(req.getMethod())) {
+            } else if ("PATCH".equalsIgnoreCase(req.getMethod())) {
                 doPost(req, resp);
             } else {
                 ResponseUtils.sendError(resp, INCORRECT_METHOD.getMessage(), SC_METHOD_NOT_ALLOWED);
@@ -49,21 +47,17 @@ public class ExchangeRateController extends HttpServlet{
         try {
             String pathInfo = req.getPathInfo();
             if(pathInfo == null || pathInfo.equals("/")) {
-                ResponseUtils.sendError(res, MISSING_PAIR.getMessage(), SC_BAD_REQUEST);
-                return;
+                throw new BadRequestException(MISSING_PAIR.getMessage());
             }
             String pair = pathInfo.split("/")[1];
-            ExchangePairDto exPair = new ExchangePairDto();
-            exPair.setPair(pair);
-            ExchangeRateDto exRateDto = exchangeRateService.get(exPair);
-            String jsonResponse = ResponseUtils.toJson(exRateDto);
-            ResponseUtils.sendResponse(res, jsonResponse, SC_OK);
+            ExchangeRateDto exRateDto = exchangeRateService.get(pair);
+            ResponseUtils.sendJson(res, exRateDto, SC_OK);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (NotFoundException e){
             ResponseUtils.sendError(res, NOT_FOUND_PAIR.getMessage(), e.getStatusCode());
-        } catch (Exception e) {
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
+        } catch (DataBaseException e) {
+            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 
@@ -83,7 +77,7 @@ public class ExchangeRateController extends HttpServlet{
 //            pairDto.setRate(rate);
 //            ExchangeRateDto exRateDto = exchangeRateService.save(pairDto);
 //            String json = ResponseUtils.toJson(exRateDto);
-//            ResponseUtils.sendResponse(res, json, SC_ACCEPTED);
+//            ResponseUtils.sendJson(res, json, SC_ACCEPTED);
 //        } catch (BadRequestException e) {
 //            ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
 //        } catch (ExistInDbException e){

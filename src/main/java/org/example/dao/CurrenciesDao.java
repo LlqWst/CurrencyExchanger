@@ -1,7 +1,6 @@
 package org.example.dao;
 
-import DataSource.CurrenciesListener;
-import org.example.dto.CurrencyDto;
+import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
 import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
@@ -12,10 +11,8 @@ import java.util.List;
 
 public class CurrenciesDao {
 
-    public Currency getByCode(CurrencyDto currencyDto) throws SQLException {
-        String query = "SELECT * FROM Currencies WHERE Code = ?";
-
-        String code = currencyDto.getCode();
+    public Currency getByCode(String code) throws SQLException {
+        String query = "SELECT ID, FullName, Sign FROM Currencies WHERE Code = ?";
 
         try (Connection connection = CurrenciesListener.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(query);
@@ -41,10 +38,8 @@ public class CurrenciesDao {
         }
     }
 
-    public Currency getById(CurrencyDto currencyDto) throws SQLException {
+    public Currency getById(int id) throws SQLException {
         String query = "SELECT Code, FullName, Sign FROM Currencies WHERE ID = ?";
-
-        int id = currencyDto.getId();
 
         try (Connection connection = CurrenciesListener.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(query);
@@ -52,7 +47,7 @@ public class CurrenciesDao {
             try (ResultSet rs = statement.executeQuery()) {
 
                 if (!rs.next()) {
-                    throw new NotFoundException(currencyDto.getCode());
+                    throw new NotFoundException();
                 }
 
                 String name = rs.getString("FullName");
@@ -69,7 +64,6 @@ public class CurrenciesDao {
             }
         }
     }
-
 
     public List<Currency> getAll() throws SQLException {
         String query = "SELECT * FROM Currencies";
@@ -97,17 +91,12 @@ public class CurrenciesDao {
         }
     }
 
-    public Currency save(CurrencyDto currencyDto) throws SQLException {
+    public Currency save(Currency currency) throws SQLException {
         String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)";
 
-        String name = currencyDto.getName();
-        String code = currencyDto.getCode();
-        String sign = currencyDto.getSign();
-
-        Currency currency = new Currency();
-        currency.setName(name);
-        currency.setCode(code);
-        currency.setSign(sign);
+        String name = currency.getName();
+        String code = currency.getCode();
+        String sign = currency.getSign();
 
         if (isExist(code)) {
             throw new ExistInDbException();

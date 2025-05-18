@@ -1,25 +1,29 @@
 package org.example.dao;
 
-import DataSource.CurrenciesListener;
-import org.example.dto.ExchangeRateDto;
+import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
 import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRatesDao {
 
-    public ExchangeRate get(ExchangeRateDto exRateDto) throws SQLException {
-        String query = "SELECT * FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+    private final static int SCALE = 6;
+    private final static BigDecimal SCALE_MULTIPLY = BigDecimal.valueOf(10).pow(SCALE);
+
+    public ExchangeRate get(ExchangeRate exRate) throws SQLException {
+        String query = "SELECT ID, Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
         try (Connection connection = CurrenciesListener.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, exRateDto.getBaseCurrency().getId());
-            statement.setInt(2, exRateDto.getTargetCurrency().getId());
+            statement.setInt(1, exRate.getBaseCurrency().getId());
+            statement.setInt(2, exRate.getTargetCurrency().getId());
             try (ResultSet rs = statement.executeQuery()) {
 
                 if (!rs.next()) {
@@ -27,16 +31,16 @@ public class ExchangeRatesDao {
                 }
 
                 int id = rs.getInt("ID");
-                String rate = rs.getString("Rate");
-                ExchangeRate exchangeRate = new ExchangeRate();
-                exchangeRate.setId(id);
-                exchangeRate.setRate(rate);
+                BigDecimal rate = rs.getBigDecimal("Rate")
+                        .divide(SCALE_MULTIPLY, SCALE, RoundingMode.HALF_UP)
+                        .stripTrailingZeros();
+                exRate.setId(id);
+                exRate.setRate(rate);
 
-                return exchangeRate;
+                return exRate;
             }
         }
     }
-
 
     public List<ExchangeRate> getAll() throws SQLException{
         String query = "SELECT * FROM ExchangeRates";
@@ -48,8 +52,9 @@ public class ExchangeRatesDao {
                     int id = rs.getInt("ID");
                     int baseId = rs.getInt("BaseCurrencyId");
                     int targetId = rs.getInt("TargetCurrencyId");
-                    String rate = rs.getString("Rate");
-
+                    BigDecimal rate = rs.getBigDecimal("Rate")
+                            .divide(SCALE_MULTIPLY, SCALE, RoundingMode.HALF_UP)
+                            .stripTrailingZeros();
                     ExchangeRate exRate = new ExchangeRate();
                     exRate.setId(id);
                     Currency baseCurrency = new Currency();
@@ -67,35 +72,31 @@ public class ExchangeRatesDao {
         }
     }
 
-    public ExchangeRate save(ExchangeRateDto exRateDto) throws SQLException {
+    public ExchangeRate save(ExchangeRate exRate) throws SQLException {
         String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";
 
-        int base = exRateDto.getBaseCurrency().getId();
-        int target = exRateDto.getTargetCurrency().getId();
-        String rate = exRateDto.getRate();
+        int base = exRate.getBaseCurrency().getId();
+        int target = exRate.getTargetCurrency().getId();
+        BigDecimal bigRate = exRate.getRate();
+
+        int intRate = bigRate.multiply(SCALE_MULTIPLY).intValueExact();
 
         if (isExist(base, target)) {
             throw new ExistInDbException();
         }
 
-        ExchangeRate exRate = new ExchangeRate();
-        exRate.setBaseCurrency(exRateDto.getBaseCurrency());
-        exRate.setTargetCurrency(exRateDto.getTargetCurrency());
-        exRate.setRate(rate);
-
         try (Connection connection = CurrenciesListener.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setInt(1, base);
                 statement.setInt(2, target);
-                statement.setString(3, rate);
+                statement.setInt(3, intRate);
                 statement.executeUpdate();
                 ResultSet rs = statement.getGeneratedKeys();
 
                 if (rs.next()) {
                     exRate.setId(rs.getInt(1));
-
                 } else {
-                    throw new RuntimeException();
+                    throw new SQLException();
                 }
             }
             return exRate;

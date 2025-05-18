@@ -10,7 +10,7 @@ public class ResponseUtils {
     private ResponseUtils() {
     }
 
-    public static String toJson(Object object) throws IOException {
+    private static String toJson(Object object) throws IOException {
         if(object == null){
             return null;
         }
@@ -20,11 +20,12 @@ public class ResponseUtils {
         return json;
     }
 
-    public static void sendResponse(HttpServletResponse res, String payload, int status) throws IOException{
+    public static void sendJson(HttpServletResponse res, Object payload, int status) throws IOException{
+        String json = toJson(payload);
         res.setStatus(status);
-        if (payload != null){
+        if (json != null){
             PrintWriter pw = res.getWriter();
-            pw.write(payload);
+            pw.write(json);
             pw.close();
         }
     }

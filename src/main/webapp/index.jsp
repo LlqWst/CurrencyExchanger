@@ -36,7 +36,7 @@
 <h2> Add Rate </h2>
 <form action="add-rate" method="post">
     <label>Base ID:
-        <input type="text" name="baseCurrency" required>
+        <input type="text" name="baseCurrencyCode" required>
     </label><br>
 
     <label>Target ID:

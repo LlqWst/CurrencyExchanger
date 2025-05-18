@@ -13,7 +13,7 @@ import static org.example.handler.ErrorMessages.INCORRECT_URL;
 
 
 @WebFilter("/*")
-public class MainUrlFilter implements Filter {
+public class IncorrectUrlFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)

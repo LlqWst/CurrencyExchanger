@@ -1,11 +1,13 @@
 package org.example.entity;
 
+import java.math.BigDecimal;
+
 public class ExchangeRate {
 
     private int id;
     private Currency baseCurrency;
     private Currency targetCurrency;
-    private String rate;
+    private BigDecimal rate;
 
     public ExchangeRate() {
     }
@@ -34,11 +36,11 @@ public class ExchangeRate {
         this.targetCurrency = targetCurrency;
     }
 
-    public String getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 
-    public void setRate(String rate) {
+    public void setRate(BigDecimal rate) {
         this.rate = rate;
     }
 }

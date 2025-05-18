@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
 import org.example.handler.custom_exceptions.BadRequestException;
+import org.example.handler.custom_exceptions.DataBaseException;
 import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
@@ -49,45 +50,39 @@ public class ExchangeRatesController extends HttpServlet{
         try {
             String pathInfo = req.getPathInfo();
             if(pathInfo != null) {
-                ResponseUtils.sendError(res, INCORRECT_PATH_VARIABLES.getMessage(), SC_BAD_REQUEST);
+                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
             }
             List<ExchangeRateDto> exRatesDto = exchangeRatesService.getAll();
-            String jsonResponse = ResponseUtils.toJson(exRatesDto);
-            ResponseUtils.sendResponse(res, jsonResponse, SC_OK);
+            ResponseUtils.sendJson(res, exRatesDto, SC_OK);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (NotFoundException e){
-            ResponseUtils.sendError(res, MOT_EXIST_CURRENCY.getMessage() + " " + e.getMessage(), e.getStatusCode());
-        } catch (Exception e) {
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
+        } catch (DataBaseException e) {
+            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String pathInfo = req.getPathInfo();
-        if(pathInfo != null){
-            ResponseUtils.sendError(res, INCORRECT_URL.getMessage(), SC_BAD_REQUEST);
-            return;
-        }
-        String baseCurrency = req.getParameter("baseCurrencyCode");
-        String targetCurrency = req.getParameter("targetCurrencyCode");
-        String rate = req.getParameter("rate");
         try {
-            ExchangePairDto pairDto = new ExchangePairDto();
-            pairDto.setPair(baseCurrency, targetCurrency);
-            pairDto.setRate(rate);
-            ExchangeRateDto exRateDto = exchangeRatesService.save(pairDto);
-            String json = ResponseUtils.toJson(exRateDto);
-            ResponseUtils.sendResponse(res, json, SC_ACCEPTED);
+            String pathInfo = req.getPathInfo();
+            if(pathInfo != null){
+                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
+            }
+            String baseCurrency = req.getParameter("baseCurrencyCode");
+            String targetCurrency = req.getParameter("targetCurrencyCode");
+            String rate = req.getParameter("rate");
+            ExchangePairDto exPairDto = new ExchangePairDto(
+                    baseCurrency, targetCurrency, rate);
+            ExchangeRateDto exRateDto = exchangeRatesService.save(exPairDto);
+            ResponseUtils.sendJson(res, exRateDto, SC_ACCEPTED);
         } catch (BadRequestException e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         } catch (NotFoundException e) {
-            ResponseUtils.sendError(res, MOT_EXIST_CURRENCY.getMessage() + " " + e.getMessage(), e.getStatusCode());
+            ResponseUtils.sendError(res, NOT_EXIST_CURRENCY.getMessage() + e.getMessage(), e.getStatusCode());
         } catch (ExistInDbException e) {
             ResponseUtils.sendError(res, EXIST_PAIR.getMessage(), e.getStatusCode());
-        } catch (Exception e){
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
+        } catch (DataBaseException e){
+            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 
