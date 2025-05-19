@@ -65,7 +65,7 @@ public class Validator {
                     .setScale(6, RoundingMode.HALF_UP)
                     .stripTrailingZeros();
             BigDecimal min = new BigDecimal("0.000001");
-            BigDecimal max = new BigDecimal("999999999");
+            BigDecimal max = new BigDecimal("999999999,999999");
             if(result.compareTo(min) < 0 || result.compareTo(max) > 0){
                 throw new BadRequestException(INCORRECT_RATE.getMessage());
             }
@@ -76,11 +76,15 @@ public class Validator {
 
     }
 
-    public String patchParsValue(String str){
-        return str
-                .replace("rate=", "")
-                .replace("%2C",",");
-
+    public String patchParsRate(String str) {
+        String key = "rate=";
+        String[] params = str.split("&");
+        for (String param : params) {
+            if (param.startsWith(key)) {
+                return param.substring(key.length());
+            }
+        }
+        throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "rate");
     }
 
 }

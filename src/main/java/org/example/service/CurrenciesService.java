@@ -81,7 +81,7 @@ public class CurrenciesService implements ServiceCurrencies {
         }
     }
 
-    private CurrencyDto toCurrencyDto (Currency currency){
+    public CurrencyDto toCurrencyDto (Currency currency){
         CurrencyDto dto = new CurrencyDto();
         dto.setId(currency.getId());
         dto.setName(currency.getName());

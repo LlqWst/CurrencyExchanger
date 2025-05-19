@@ -71,10 +71,10 @@ public class ExchangeRateController extends HttpServlet{
                 throw new BadRequestException(MISSING_PAIR.getMessage());
             }
             String pair = pathInfo.split("/")[1];
+
             String encryptedRate = req.getReader()
                     .lines()
-                    .collect(Collectors
-                            .joining());
+                    .collect(Collectors.joining());
             ExchangePairDto pairDto = new ExchangePairDto();
             pairDto.setPair(pair);
             pairDto.setRate(encryptedRate);

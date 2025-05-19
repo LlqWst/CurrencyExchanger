@@ -66,13 +66,10 @@ public class ExchangeRatesService {
                 CurrencyDto baseCurrencyDto = currenciesService.get(baseCode);
                 CurrencyDto targetCurrencyDto = currenciesService.get(targetCode);
 
-                Currency baseCurrency = currenciesService.toCurrency(baseCurrencyDto);
-                Currency targetCurrency = currenciesService.toCurrency(targetCurrencyDto);
-
                 ExchangeRateDto exRateDto = new ExchangeRateDto(
                         exRate.getId(),
-                        baseCurrency,
-                        targetCurrency,
+                        baseCurrencyDto,
+                        targetCurrencyDto,
                         exRate.getRate()
                 );
                 exRatesDto.add(exRateDto);
@@ -124,7 +121,7 @@ public class ExchangeRatesService {
             String targetCode = pair.substring(3, 6);
 
             String encryptedRate = exPairDto.getRate();
-            String decryptedRate = validator.patchParsValue(encryptedRate);
+            String decryptedRate = validator.patchParsRate(encryptedRate);
             BigDecimal rate = validator.parsRate(decryptedRate);
 
             CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
@@ -150,10 +147,12 @@ public class ExchangeRatesService {
     }
 
     private ExchangeRateDto toExchangeRateDto (ExchangeRate exRate){
+        CurrencyDto baseCurrencyDto = currenciesService.toCurrencyDto(exRate.getBaseCurrency());
+        CurrencyDto targetCurrencyDto = currenciesService.toCurrencyDto(exRate.getTargetCurrency());
         return new ExchangeRateDto(
                 exRate.getId(),
-                exRate.getBaseCurrency(),
-                exRate.getTargetCurrency(),
+                baseCurrencyDto,
+                targetCurrencyDto,
                 exRate.getRate()
         );
     }

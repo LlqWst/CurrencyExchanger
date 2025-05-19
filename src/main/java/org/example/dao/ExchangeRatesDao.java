@@ -50,6 +50,7 @@ public class ExchangeRatesDao {
         try (Connection connection = CurrenciesListener.getConnection()) {
             Statement statement = connection.createStatement();
             try(ResultSet rs = statement.executeQuery(query)) {
+
                 List<ExchangeRate> exchangeRates = new ArrayList<>();
                 while (rs.next()) {
                     int id = rs.getInt("ID");
@@ -58,14 +59,15 @@ public class ExchangeRatesDao {
                     BigDecimal rate = rs.getBigDecimal("Rate")
                             .divide(SCALE_MULTIPLY, SCALE, RoundingMode.HALF_UP)
                             .stripTrailingZeros();
+
                     Currency baseCurrency = new Currency();
                     Currency targetCurrency = new Currency();
                     baseCurrency.setId(baseId);
                     targetCurrency.setId(targetId);
+
                     ExchangeRate exRate = setExRate(id, baseCurrency, targetCurrency, rate);
                     exchangeRates.add(exRate);
                 }
-
                 return exchangeRates;
             }
         }
@@ -109,18 +111,17 @@ public class ExchangeRatesDao {
         BigDecimal bigRate = exRate.getRate();
         int intRate = bigRate.multiply(SCALE_MULTIPLY).intValueExact();
 
-        try (Connection connection = CurrenciesListener.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setInt(1, intRate);
-                statement.setInt(2, base);
-                statement.setInt(3, target);
-                ResultSet rs = statement.executeQuery();
+        try (Connection connection = CurrenciesListener.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, intRate);
+            statement.setInt(2, base);
+            statement.setInt(3, target);
+            ResultSet rs = statement.executeQuery();
 
-                if (rs.next()) {
-                    exRate.setId(rs.getInt("ID"));
-                } else {
-                    throw new SQLException();
-                }
+            if (rs.next()) {
+                exRate.setId(rs.getInt("ID"));
+            } else {
+                throw new SQLException();
             }
             return exRate;
         }

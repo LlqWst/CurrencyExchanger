@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 public record ExchangeRateDto(
 
      int id,
-     Currency baseCurrency,
-     Currency targetCurrency,
+     CurrencyDto baseCurrencyDto,
+     CurrencyDto targetCurrencyDto,
      BigDecimal rate
 ){}
 //    public ExchangeRateDto() {
