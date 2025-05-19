@@ -34,7 +34,8 @@ public class IncorrectUrlFilter implements Filter {
         String path = req.getRequestURI().substring(req.getContextPath().length());
         String[] pathParts = path.split("/");
         String firstSegment = pathParts.length > 1 ? pathParts[1] : "";
-        return  firstSegment.equals("currencies") ||
+        return firstSegment.isEmpty() ||
+                firstSegment.equals("currencies") ||
                 firstSegment.equals("exchangeRates") ||
                 firstSegment.equals("exchangeRate");
     }

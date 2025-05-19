@@ -10,6 +10,7 @@ import org.example.handler.CurrenciesExceptions;
 import org.example.handler.custom_exceptions.BadRequestException;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.CurrenciesService;
+import org.example.validation.Validator;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.example.handler.ErrorMessages.*;
@@ -18,6 +19,7 @@ import static org.example.handler.ErrorMessages.*;
 public class CurrenciesController extends HttpServlet{
 
     private CurrenciesService currenciesService;
+    private Validator validator;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res)
@@ -38,6 +40,7 @@ public class CurrenciesController extends HttpServlet{
     @Override
     public void init(){
         this.currenciesService = new CurrenciesService();
+        this.validator = new Validator();
     }
 
     @Override
@@ -70,6 +73,11 @@ public class CurrenciesController extends HttpServlet{
             String name = req.getParameter("name");
             String code = req.getParameter("code");
             String sign = req.getParameter("sign");
+
+            validator.validateParameter(name, "name");
+            validator.validateParameter(code, "code");
+            validator.validateParameter(sign, "sign");
+
             CurrencyDto currencyDto = new CurrencyDto();
             currencyDto.setName(name);
             currencyDto.setCode(code);

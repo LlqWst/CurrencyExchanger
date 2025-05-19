@@ -16,45 +16,30 @@ public class Validator {
     private static final Pattern PAIR_PATTERN = Pattern.compile("[A-Z]{6}");
 
     public void validateCode(String code) {
-        if(code == null){
-            throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "code");
-        }
         if (!CODE_PATTERN.matcher(code).matches()){
             throw new BadRequestException(INCORRECT_CODE.getMessage());
         }
     }
 
     public void validateName(String name) {
-        if(name == null){
-            throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "name");
-        }
         if(!NAME_PATTERN.matcher(name).matches()){
             throw new BadRequestException(INCORRECT_NAME.getMessage());
         }
     }
 
     public void validateSign(String sign) {
-        if(sign == null){
-            throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "sign");
-        }
         if(!SIGN_PATTERN.matcher(sign).matches()){
             throw new BadRequestException(INCORRECT_SIGN.getMessage());
         }
     }
 
     public void validatePair(String pair) {
-        if(pair == null){
-            throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "pair");
-        }
         if (!PAIR_PATTERN.matcher(pair).matches()){
             throw new BadRequestException(INCORRECT_PAIR.getMessage());
         }
     }
 
     public BigDecimal parsRate(String rate){
-        if(rate == null){
-            throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "rate");
-        }
         try {
             rate = rate.replace(",", ".");
             int dotIndex = rate.indexOf('.');
@@ -65,7 +50,7 @@ public class Validator {
                     .setScale(6, RoundingMode.HALF_UP)
                     .stripTrailingZeros();
             BigDecimal min = new BigDecimal("0.000001");
-            BigDecimal max = new BigDecimal("999999999,999999");
+            BigDecimal max = new BigDecimal("999999999.999999");
             if(result.compareTo(min) < 0 || result.compareTo(max) > 0){
                 throw new BadRequestException(INCORRECT_RATE.getMessage());
             }
@@ -81,10 +66,17 @@ public class Validator {
         String[] params = str.split("&");
         for (String param : params) {
             if (param.startsWith(key)) {
-                return param.substring(key.length());
+                return param.substring(key.length())
+                        .replace("%2C", ".");
             }
         }
         throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "rate");
+    }
+
+    public void validateParameter(String param, String paramName) {
+        if (param == null) {
+            throw new BadRequestException(MISSING_PARAMETERS.getMessage() + paramName);
+        }
     }
 
 }

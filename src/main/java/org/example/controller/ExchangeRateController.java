@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
+import org.example.handler.CurrenciesExceptions;
 import org.example.handler.custom_exceptions.BadRequestException;
 import org.example.handler.custom_exceptions.DataBaseException;
 import org.example.handler.custom_exceptions.NotFoundException;
@@ -54,12 +55,8 @@ public class ExchangeRateController extends HttpServlet{
             String pair = pathInfo.split("/")[1];
             ExchangeRateDto exRateDto = exchangeRateService.get(pair);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
-        } catch (BadRequestException e) {
+        } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (NotFoundException e){
-            ResponseUtils.sendError(res, NOT_FOUND_PAIR.getMessage(), e.getStatusCode());
-        } catch (DataBaseException e) {
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 
@@ -80,12 +77,8 @@ public class ExchangeRateController extends HttpServlet{
             pairDto.setRate(encryptedRate);
             ExchangeRateDto exRateDto = exchangeRateService.update(pairDto);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
-        } catch (BadRequestException e) {
+        } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (NotFoundException e) {
-            ResponseUtils.sendError(res, NOT_EXIST_CURRENCY.getMessage() + e.getMessage(), e.getStatusCode());
-        }  catch (DataBaseException e){
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 

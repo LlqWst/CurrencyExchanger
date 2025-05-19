@@ -6,12 +6,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
+import org.example.handler.CurrenciesExceptions;
 import org.example.handler.custom_exceptions.BadRequestException;
-import org.example.handler.custom_exceptions.DataBaseException;
-import org.example.handler.custom_exceptions.ExistInDbException;
-import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.ExchangeRatesService;
+import org.example.validation.Validator;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,6 +22,7 @@ import static org.example.handler.ErrorMessages.*;
 public class ExchangeRatesController extends HttpServlet{
 
     private ExchangeRatesService exchangeRatesService;
+    private Validator validator;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -43,6 +43,7 @@ public class ExchangeRatesController extends HttpServlet{
     @Override
     public void init(){
         this.exchangeRatesService = new ExchangeRatesService();
+        this.validator = new Validator();
     }
 
     @Override
@@ -54,10 +55,8 @@ public class ExchangeRatesController extends HttpServlet{
             }
             List<ExchangeRateDto> exRatesDto = exchangeRatesService.getAll();
             ResponseUtils.sendJson(res, exRatesDto, SC_OK);
-        } catch (BadRequestException e) {
+        } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (DataBaseException e) {
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 
@@ -68,23 +67,22 @@ public class ExchangeRatesController extends HttpServlet{
             if(pathInfo != null){
                 throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
             }
-            String baseCurrency = req.getParameter("baseCurrencyCode");
-            String targetCurrency = req.getParameter("targetCurrencyCode");
+            String baseCurrencyCode = req.getParameter("baseCurrencyCode");
+            String targetCurrencyCode = req.getParameter("targetCurrencyCode");
             String rate = req.getParameter("rate");
+
+            validator.validateParameter(baseCurrencyCode, "baseCurrencyCode");
+            validator.validateParameter(targetCurrencyCode, "targetCurrencyCode");
+            validator.validateParameter(rate, "rate");
+
             ExchangePairDto exPairDto = new ExchangePairDto();
-            exPairDto.setBaseCurrencyCode(baseCurrency);
-            exPairDto.setTargetCurrencyCode(targetCurrency);
+            exPairDto.setBaseCurrencyCode(baseCurrencyCode);
+            exPairDto.setTargetCurrencyCode(targetCurrencyCode);
             exPairDto.setRate(rate);
             ExchangeRateDto exRateDto = exchangeRatesService.save(exPairDto);
             ResponseUtils.sendJson(res, exRateDto, SC_CREATED);
-        } catch (BadRequestException e) {
+        } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (NotFoundException e) {
-            ResponseUtils.sendError(res, NOT_EXIST_CURRENCY.getMessage() + e.getMessage(), e.getStatusCode());
-        } catch (ExistInDbException e) {
-            ResponseUtils.sendError(res, EXIST_PAIR.getMessage(), e.getStatusCode());
-        } catch (DataBaseException e){
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), e.getStatusCode());
         }
     }
 

@@ -3,7 +3,6 @@ package org.example.dao;
 import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
-import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
 
 import java.math.BigDecimal;
@@ -11,6 +10,8 @@ import java.math.RoundingMode;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.example.handler.ErrorMessages.NOT_FOUND_PAIR;
 
 public class ExchangeRatesDao {
 
@@ -30,7 +31,7 @@ public class ExchangeRatesDao {
             try (ResultSet rs = statement.executeQuery()) {
 
                 if (!rs.next()) {
-                    throw new NotFoundException();
+                    throw new NotFoundException(NOT_FOUND_PAIR.getMessage());
                 }
 
                 int id = rs.getInt("ID");
@@ -79,17 +80,13 @@ public class ExchangeRatesDao {
         int base = exRate.getBaseCurrency().getId();
         int target = exRate.getTargetCurrency().getId();
         BigDecimal bigRate = exRate.getRate();
-        int intRate = bigRate.multiply(SCALE_MULTIPLY).intValueExact();
-
-        if (isExist(base, target)) {
-            throw new ExistInDbException();
-        }
+        BigDecimal rate = bigRate.multiply(SCALE_MULTIPLY);
 
         try (Connection connection = CurrenciesListener.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setInt(1, base);
                 statement.setInt(2, target);
-                statement.setInt(3, intRate);
+                statement.setBigDecimal(3, rate);
                 statement.executeUpdate();
                 ResultSet rs = statement.getGeneratedKeys();
 
@@ -109,11 +106,11 @@ public class ExchangeRatesDao {
         int base = exRate.getBaseCurrency().getId();
         int target = exRate.getTargetCurrency().getId();
         BigDecimal bigRate = exRate.getRate();
-        int intRate = bigRate.multiply(SCALE_MULTIPLY).intValueExact();
+        BigDecimal rate = bigRate.multiply(SCALE_MULTIPLY);
 
         try (Connection connection = CurrenciesListener.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, intRate);
+            statement.setBigDecimal(1, rate);
             statement.setInt(2, base);
             statement.setInt(3, target);
             ResultSet rs = statement.executeQuery();
@@ -121,9 +118,18 @@ public class ExchangeRatesDao {
             if (rs.next()) {
                 exRate.setId(rs.getInt("ID"));
             } else {
-                throw new SQLException();
+                throw new NotFoundException(NOT_FOUND_PAIR.getMessage());
             }
             return exRate;
+        }
+    }
+
+    public boolean isExist(ExchangeRate exRate) {
+        try {
+            get(exRate);
+            return true;
+        } catch (Exception e){
+            return false;
         }
     }
 
@@ -134,19 +140,6 @@ public class ExchangeRatesDao {
         exRate.setTargetCurrency(target);
         exRate.setRate(rate);
         return exRate;
-    }
-
-    private boolean isExist(int baseCode, int targetCode) throws SQLException {
-        String query = "SELECT ID FROM ExchangeRates WHERE BaseCurrencyId = ? and TargetCurrencyId = ?";
-
-        try (Connection connection = CurrenciesListener.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1, baseCode);
-            statement.setInt(2, targetCode);
-            try (ResultSet rs = statement.executeQuery()) {
-                return rs.next();
-            }
-        }
     }
 
 }

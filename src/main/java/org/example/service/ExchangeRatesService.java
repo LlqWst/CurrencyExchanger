@@ -16,6 +16,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.handler.ErrorMessages.EXIST_PAIR;
+import static org.example.handler.ErrorMessages.INTERNAL_ERROR;
+
 public class ExchangeRatesService {
 
     private final ExchangeRatesDao exchangeRatesDao;
@@ -51,7 +54,7 @@ public class ExchangeRatesService {
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (Exception e){
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
@@ -76,7 +79,7 @@ public class ExchangeRatesService {
             }
             return exRatesDto;
         } catch (Exception e) {
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
@@ -87,6 +90,7 @@ public class ExchangeRatesService {
 
             validator.validateCode(baseCode);
             validator.validateCode(targetCode);
+
             BigDecimal rate = validator.parsRate(exPairDto.getRate());
 
             CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
@@ -99,6 +103,9 @@ public class ExchangeRatesService {
             exRate.setBaseCurrency(baseCurrency);
             exRate.setTargetCurrency(targetCurrency);
             exRate.setRate(rate);
+            if(exchangeRatesDao.isExist(exRate)){
+                throw new ExistInDbException(EXIST_PAIR.getMessage());
+            }
             exRate = exchangeRatesDao.save(exRate);
 
             return toExchangeRateDto(exRate);
@@ -107,9 +114,9 @@ public class ExchangeRatesService {
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (ExistInDbException e) {
-            throw new ExistInDbException();
+            throw new ExistInDbException(e.getMessage());
         } catch (Exception e) {
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
@@ -142,7 +149,7 @@ public class ExchangeRatesService {
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (Exception e){
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
