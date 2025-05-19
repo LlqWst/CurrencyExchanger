@@ -6,10 +6,8 @@ import java.util.List;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import org.example.dto.CurrencyDto;
+import org.example.handler.CurrenciesExceptions;
 import org.example.handler.custom_exceptions.BadRequestException;
-import org.example.handler.custom_exceptions.DataBaseException;
-import org.example.handler.custom_exceptions.ExistInDbException;
-import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.CurrenciesService;
 
@@ -22,18 +20,18 @@ public class CurrenciesController extends HttpServlet{
     private CurrenciesService currenciesService;
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp)
+    protected void service(HttpServletRequest req, HttpServletResponse res)
             throws IOException {
         try {
             if ("GET".equalsIgnoreCase(req.getMethod())) {
-                doGet(req, resp);
+                doGet(req, res);
             } else if ("POST".equalsIgnoreCase(req.getMethod())) {
-                doPost(req, resp);
+                doPost(req, res);
             } else {
-                ResponseUtils.sendError(resp, INCORRECT_METHOD.getMessage(), SC_METHOD_NOT_ALLOWED);
+                ResponseUtils.sendError(res, INCORRECT_METHOD.getMessage(), SC_METHOD_NOT_ALLOWED);
             }
         } catch (Exception e){
-            ResponseUtils.sendError(resp, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
+            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -57,12 +55,8 @@ public class CurrenciesController extends HttpServlet{
             String code = pathInfo.split("/")[1];
             CurrencyDto currencyDto = currenciesService.getByCode(code);
             ResponseUtils.sendJson(res, currencyDto, SC_OK);
-        } catch (BadRequestException e) {
+        } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (NotFoundException e){
-            ResponseUtils.sendError(res, NOT_EXIST_CURRENCY.getMessage(), e.getStatusCode());
-        } catch (DataBaseException e) {
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -82,12 +76,8 @@ public class CurrenciesController extends HttpServlet{
             currencyDto.setSign(sign);
             currencyDto = currenciesService.save(currencyDto);
             ResponseUtils.sendJson(res, currencyDto, SC_CREATED);
-        } catch (BadRequestException e) {
+        } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
-        } catch (ExistInDbException e){
-            ResponseUtils.sendError(res, EXIST_CURRENCY.getMessage(), e.getStatusCode());
-        } catch (DataBaseException e){
-            ResponseUtils.sendError(res, INTERNAL_ERROR.getMessage(), SC_INTERNAL_SERVER_ERROR);
         }
     }
 

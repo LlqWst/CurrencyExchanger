@@ -2,8 +2,8 @@ package org.example.dto;
 
 public class CurrencyDto {
     private int id;
-    private String code;
     private String name;
+    private String code;
     private String sign;
 
     public int getId() {

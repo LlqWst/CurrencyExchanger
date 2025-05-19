@@ -5,7 +5,7 @@ public enum ErrorMessages {
     INCORRECT_PATH_VARIABLES("Only one path segment are supported"),
     INCORRECT_PARAMETER("Incorrect parameter"),
     NOT_EXIST_CURRENCY("Currency not found: "),
-    EXIST_CURRENCY("Currency already exist"),
+    EXIST_CURRENCY("Currency already exist: "),
     EXIST_PAIR("Pair already exist"),
     INTERNAL_ERROR("Data Base is busy"),
     MISSING_CURRENCY("Currency missing in URL"),

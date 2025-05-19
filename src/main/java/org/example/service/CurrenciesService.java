@@ -12,6 +12,8 @@ import org.example.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.handler.ErrorMessages.*;
+
 public class CurrenciesService implements ServiceCurrencies {
 
     private final CurrenciesDao dao;
@@ -32,7 +34,7 @@ public class CurrenciesService implements ServiceCurrencies {
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
@@ -40,12 +42,10 @@ public class CurrenciesService implements ServiceCurrencies {
         try {
             Currency currency = dao.getById(id);
             return toCurrencyDto(currency);
-        } catch (BadRequestException e) {
-            throw new BadRequestException ();
         } catch (NotFoundException e) {
-            throw new NotFoundException();
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
@@ -59,7 +59,7 @@ public class CurrenciesService implements ServiceCurrencies {
             }
             return currenciesDto;
         } catch (Exception e) {
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 
@@ -73,11 +73,11 @@ public class CurrenciesService implements ServiceCurrencies {
 
             return toCurrencyDto(currency);
         } catch (ExistInDbException e) {
-            throw new ExistInDbException();
+            throw new ExistInDbException(e.getMessage());
         } catch (BadRequestException e) {
             throw new BadRequestException(e.getMessage());
         } catch (Exception e) {
-            throw new DataBaseException();
+            throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
 

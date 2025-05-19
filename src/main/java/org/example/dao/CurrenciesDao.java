@@ -9,6 +9,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.handler.ErrorMessages.EXIST_CURRENCY;
+import static org.example.handler.ErrorMessages.NOT_EXIST_CURRENCY;
+
 public class CurrenciesDao {
 
     public Currency getByCode(String code) throws SQLException {
@@ -20,7 +23,7 @@ public class CurrenciesDao {
             try (ResultSet rs = statement.executeQuery()) {
 
                 if (!rs.next()) {
-                    throw new NotFoundException(code);
+                    throw new NotFoundException(NOT_EXIST_CURRENCY.getMessage() + code);
                 }
 
                 int id = rs.getInt("ID");
@@ -42,7 +45,7 @@ public class CurrenciesDao {
             try (ResultSet rs = statement.executeQuery()) {
 
                 if (!rs.next()) {
-                    throw new NotFoundException();
+                    throw new NotFoundException(NOT_EXIST_CURRENCY.getMessage());
                 }
 
                 String name = rs.getString("FullName");
@@ -84,7 +87,7 @@ public class CurrenciesDao {
         String sign = currency.getSign();
 
         if (isExist(code)) {
-            throw new ExistInDbException();
+            throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
         }
 
         try (Connection connection = CurrenciesListener.getConnection()) {
