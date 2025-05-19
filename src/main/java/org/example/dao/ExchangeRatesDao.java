@@ -126,7 +126,7 @@ public class ExchangeRatesDao {
 
     public boolean isExist(ExchangeRate exRate) {
         try {
-            get(exRate);
+            this.get(exRate);
             return true;
         } catch (Exception e){
             return false;

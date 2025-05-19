@@ -16,18 +16,18 @@ import static org.example.handler.ErrorMessages.*;
 
 public class CurrenciesService implements ServiceCurrencies {
 
-    private final CurrenciesDao dao;
+    private final CurrenciesDao currenciesDao;
     private final Validator validator;
 
     public CurrenciesService()  {
-        this.dao = new CurrenciesDao();
+        this.currenciesDao = new CurrenciesDao();
         this.validator = new Validator();
     }
 
     public CurrencyDto getByCode(String code) {
         try {
             validator.validateCode(code);
-            Currency currency = dao.getByCode(code);
+            Currency currency = currenciesDao.getByCode(code);
             return toCurrencyDto(currency);
         } catch (BadRequestException e) {
             throw new BadRequestException (e.getMessage());
@@ -40,7 +40,7 @@ public class CurrenciesService implements ServiceCurrencies {
 
     public CurrencyDto get(Integer id) {
         try {
-            Currency currency = dao.getById(id);
+            Currency currency = currenciesDao.getById(id);
             return toCurrencyDto(currency);
         } catch (NotFoundException e) {
             throw new NotFoundException(e.getMessage());
@@ -52,7 +52,7 @@ public class CurrenciesService implements ServiceCurrencies {
     public List<CurrencyDto> getAll() {
         try {
             List<CurrencyDto> currenciesDto = new ArrayList<>();
-            List<Currency> currencies = dao.getAll();
+            List<Currency> currencies = currenciesDao.getAll();
             for(Currency currency : currencies){
                 CurrencyDto currencyDto = toCurrencyDto(currency);
                 currenciesDto.add(currencyDto);
@@ -68,8 +68,14 @@ public class CurrenciesService implements ServiceCurrencies {
             validator.validateName(currencyDto.getName());
             validator.validateCode(currencyDto.getCode());
             validator.validateSign(currencyDto.getSign());
+
+            String code = currencyDto.getCode();
+            if(currenciesDao.isExist(code)){
+                throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
+            }
+
             Currency currency = toCurrency(currencyDto);
-            currency = dao.save(currency);
+            currency = currenciesDao.save(currency);
 
             return toCurrencyDto(currency);
         } catch (ExistInDbException e) {

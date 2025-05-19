@@ -2,14 +2,12 @@ package org.example.dao;
 
 import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
-import org.example.handler.custom_exceptions.ExistInDbException;
 import org.example.handler.custom_exceptions.NotFoundException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.example.handler.ErrorMessages.EXIST_CURRENCY;
 import static org.example.handler.ErrorMessages.NOT_EXIST_CURRENCY;
 
 public class CurrenciesDao {
@@ -86,10 +84,6 @@ public class CurrenciesDao {
         String code = currency.getCode();
         String sign = currency.getSign();
 
-        if (isExist(code)) {
-            throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
-        }
-
         try (Connection connection = CurrenciesListener.getConnection()) {
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -106,6 +100,16 @@ public class CurrenciesDao {
         }
     }
 
+
+    public boolean isExist(String code) {
+        try {
+            this.getByCode(code);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private Currency setCurrency(int id, String name, String code, String sign) {
         Currency currency = new Currency();
         currency.setId(id);
@@ -113,18 +117,6 @@ public class CurrenciesDao {
         currency.setCode(code);
         currency.setSign(sign);
         return currency;
-    }
-
-    private boolean isExist(String code) throws SQLException {
-        String query = "SELECT ID FROM Currencies WHERE Code = ?";
-
-        try (Connection connection = CurrenciesListener.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, code);
-            try (ResultSet rs = statement.executeQuery()) {
-                return rs.next();
-            }
-        }
     }
 
 }
