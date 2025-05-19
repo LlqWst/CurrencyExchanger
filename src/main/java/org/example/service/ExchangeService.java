@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.dto.CurrencyDto;
 import org.example.dto.ExchangeDto;
 import org.example.dto.ExchangePairDto;
+import org.example.dto.ExchangeRateDto;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
 import org.example.handler.custom_exceptions.BadRequestException;
@@ -16,13 +17,13 @@ import static org.example.handler.ErrorMessages.INTERNAL_ERROR;
 
 public class ExchangeService {
 
+    private final static String USD_CODE = "USD";
+
     private final ExchangeRatesService exchangeRatesService;
-    private final CurrenciesService currenciesService;
     private final Validator validator;
 
     public ExchangeService() {
         this.exchangeRatesService = new ExchangeRatesService();
-        this.currenciesService = new CurrenciesService();
         this.validator = new Validator();
     }
 
@@ -30,23 +31,23 @@ public class ExchangeService {
         try {
             String baseCode = exPairDto.getBaseCurrencyCode();
             String targetCode = exPairDto.getTargetCurrencyCode();
+
+            String pair1 = baseCode + targetCode;
+            String pair2 = targetCode + baseCode;
+            String pair3 = USD_CODE + baseCode;
+            String pair4 = USD_CODE + targetCode;
+
+            ExchangeRateDto exRateDto = exchangeRatesService.get(pair1);
+            exchangeRatesService.get(pair2);
+            exchangeRatesService.get(pair3);
+            exchangeRatesService.get(pair4);
+
             String amountDto = exPairDto.getAmount();
-            validator.validateCode(baseCode);
-            validator.validateCode(targetCode);
             BigDecimal amount = validator.parsAmount(amountDto);
+            BigDecimal rate = exRateDto.rate();
+            BigDecimal convertedAmount = amount.multiply(rate);
 
-            CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
-            CurrencyDto targetCurrencyDto = currenciesService.getByCode(targetCode);
-
-            Currency baseCurrency = currenciesService.toCurrency(baseCurrencyDto);
-            Currency targetCurrency = currenciesService.toCurrency(targetCurrencyDto);
-
-            ExchangeRate exRate = new ExchangeRate();
-            exRate.setBaseCurrency(baseCurrency);
-            exRate.setTargetCurrency(targetCurrency);
-            //exRate = exchangeRatesDao.get(exRate);
-            //return toExchangeRateDto(exRate);
-            return new ExchangeDto(baseCurrencyDto, targetCurrencyDto, amount ,amount, amount);
+            return new ExchangeDto(exRateDto.baseCurrencyDto(), exRateDto.targetCurrencyDto(), rate, amount, convertedAmount);
         } catch (BadRequestException e) {
             throw new BadRequestException (e.getMessage());
         } catch (NotFoundException e) {

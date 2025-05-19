@@ -58,6 +58,13 @@ public class ExchangeRatesService {
         }
     }
 
+//    public ExchangeRateDto get (ExchangePairDto exPairDto){
+//        String baseCode = exPairDto.getBaseCurrencyCode();
+//        String targetCode = exPairDto.getBaseCurrencyCode();
+//        String exPair = baseCode + targetCode;
+//        return this.get(exPair);
+//    }
+
     public List<ExchangeRateDto> getAll() {
         try {
             List<ExchangeRate> exRates = exchangeRatesDao.getAll();
