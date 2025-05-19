@@ -5,6 +5,7 @@ public class ExchangePairDto {
     private String targetCurrencyCode;
     private String rate;
     private String pair;
+    private String amount;
 
     public String getBaseCurrencyCode() {
         return baseCurrencyCode;
@@ -36,6 +37,14 @@ public class ExchangePairDto {
 
     public void setPair(String pair) {
         this.pair = pair;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
     }
 }
 

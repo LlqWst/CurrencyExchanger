@@ -8,8 +8,6 @@ import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
 import org.example.handler.CurrenciesExceptions;
 import org.example.handler.custom_exceptions.BadRequestException;
-import org.example.handler.custom_exceptions.DataBaseException;
-import org.example.handler.custom_exceptions.NotFoundException;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.ExchangeRatesService;
 
