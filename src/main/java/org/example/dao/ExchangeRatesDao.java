@@ -4,6 +4,7 @@ import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
 import org.example.handler.custom_exceptions.NotFoundException;
+import org.example.validation.Validator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,11 +16,14 @@ import static org.example.handler.ErrorMessages.NOT_FOUND_PAIR;
 
 public class ExchangeRatesDao {
 
-    private final static int SCALE = 6;
+    private final static int SCALE = Validator.SCALE;
     private final static BigDecimal SCALE_MULTIPLY = BigDecimal.valueOf(10).pow(SCALE);
 
     public ExchangeRate get(ExchangeRate exRate) throws SQLException {
-        String query = "SELECT ID, Rate FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+        String query = "SELECT ID, Rate" +
+                " FROM ExchangeRates" +
+                " WHERE BaseCurrencyId = ?" +
+                " AND TargetCurrencyId = ?";
 
         int baseId = exRate.getBaseCurrency().getId();
         int targetId = exRate.getTargetCurrency().getId();
@@ -101,7 +105,11 @@ public class ExchangeRatesDao {
     }
 
     public ExchangeRate update(ExchangeRate exRate) throws SQLException {
-        String query = "UPDATE ExchangeRates SET Rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ? RETURNING ID";
+        String query = "UPDATE ExchangeRates" +
+                " SET Rate = ?" +
+                " WHERE BaseCurrencyId = ?" +
+                " AND TargetCurrencyId = ?" +
+                " RETURNING ID";
 
         int base = exRate.getBaseCurrency().getId();
         int target = exRate.getTargetCurrency().getId();

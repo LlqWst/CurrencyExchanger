@@ -79,6 +79,7 @@ public class ExchangeRatesController extends HttpServlet{
             exPairDto.setBaseCurrencyCode(baseCurrencyCode);
             exPairDto.setTargetCurrencyCode(targetCurrencyCode);
             exPairDto.setRate(rate);
+
             ExchangeRateDto exRateDto = exchangeRatesService.save(exPairDto);
             ResponseUtils.sendJson(res, exRateDto, SC_CREATED);
         } catch (CurrenciesExceptions e) {

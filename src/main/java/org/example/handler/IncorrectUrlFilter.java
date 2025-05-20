@@ -37,7 +37,8 @@ public class IncorrectUrlFilter implements Filter {
         return firstSegment.isEmpty() ||
                 firstSegment.equals("currencies") ||
                 firstSegment.equals("exchangeRates") ||
-                firstSegment.equals("exchangeRate");
+                firstSegment.equals("exchangeRate") ||
+                firstSegment.equals("exchange");
     }
 
 }

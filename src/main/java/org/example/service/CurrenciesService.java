@@ -69,10 +69,10 @@ public class CurrenciesService implements ServiceCurrencies {
             validator.validateCode(currencyDto.getCode());
             validator.validateSign(currencyDto.getSign());
 
-            String code = currencyDto.getCode();
-            if(currenciesDao.isExist(code)){
-                throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
-            }
+//            String code = currencyDto.getCode();
+//            if(currenciesDao.isExist(code)){
+//                throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
+//            }
 
             Currency currency = toCurrency(currencyDto);
             currency = currenciesDao.save(currency);

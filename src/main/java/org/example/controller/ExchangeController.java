@@ -62,6 +62,7 @@ public class ExchangeController extends HttpServlet{
             exPairDto.setBaseCurrencyCode(from);
             exPairDto.setTargetCurrencyCode(to);
             exPairDto.setAmount(amount);
+
             ExchangeDto exDto = exchangeService.get(exPairDto);
             ResponseUtils.sendJson(res, exDto, SC_OK);
         } catch (CurrenciesExceptions e) {

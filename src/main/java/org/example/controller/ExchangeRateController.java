@@ -73,6 +73,7 @@ public class ExchangeRateController extends HttpServlet{
             ExchangePairDto pairDto = new ExchangePairDto();
             pairDto.setPair(pair);
             pairDto.setRate(encryptedRate);
+
             ExchangeRateDto exRateDto = exchangeRateService.update(pairDto);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
         } catch (CurrenciesExceptions e) {

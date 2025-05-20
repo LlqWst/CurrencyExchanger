@@ -2,12 +2,14 @@ package org.example.dao;
 
 import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
+import org.example.handler.custom_exceptions.BadRequestException;
 import org.example.handler.custom_exceptions.NotFoundException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.handler.ErrorMessages.EXIST_CURRENCY;
 import static org.example.handler.ErrorMessages.NOT_EXIST_CURRENCY;
 
 public class CurrenciesDao {
@@ -77,7 +79,7 @@ public class CurrenciesDao {
         }
     }
 
-    public Currency save(Currency currency) throws SQLException {
+    public Currency save(Currency currency) {
         String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?)";
 
         String name = currency.getName();
@@ -97,6 +99,8 @@ public class CurrenciesDao {
                 }
             }
             return currency;
+        } catch (SQLException e){
+            throw new BadRequestException((EXIST_CURRENCY.getMessage() + code));
         }
     }
 

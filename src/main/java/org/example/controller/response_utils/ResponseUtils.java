@@ -1,5 +1,6 @@
 package org.example.controller.response_utils;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -16,6 +17,7 @@ public class ResponseUtils {
         }
         String json;
         ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         json = mapper.writeValueAsString(object);
         return json;
     }

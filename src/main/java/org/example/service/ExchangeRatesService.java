@@ -58,13 +58,6 @@ public class ExchangeRatesService {
         }
     }
 
-//    public ExchangeRateDto get (ExchangePairDto exPairDto){
-//        String baseCode = exPairDto.getBaseCurrencyCode();
-//        String targetCode = exPairDto.getBaseCurrencyCode();
-//        String exPair = baseCode + targetCode;
-//        return this.get(exPair);
-//    }
-
     public List<ExchangeRateDto> getAll() {
         try {
             List<ExchangeRate> exRates = exchangeRatesDao.getAll();
@@ -76,12 +69,12 @@ public class ExchangeRatesService {
                 CurrencyDto baseCurrencyDto = currenciesService.get(baseCode);
                 CurrencyDto targetCurrencyDto = currenciesService.get(targetCode);
 
-                ExchangeRateDto exRateDto = new ExchangeRateDto(
-                        exRate.getId(),
-                        baseCurrencyDto,
-                        targetCurrencyDto,
-                        exRate.getRate()
-                );
+                ExchangeRateDto exRateDto = new ExchangeRateDto();
+                exRateDto.setBaseCurrencyDto(baseCurrencyDto);
+                exRateDto.setTargetCurrencyDto(targetCurrencyDto);
+                exRateDto.setId(exRate.getId());
+                exRateDto.setRate(exRate.getRate());
+
                 exRatesDto.add(exRateDto);
             }
             return exRatesDto;
@@ -161,14 +154,17 @@ public class ExchangeRatesService {
     }
 
     private ExchangeRateDto toExchangeRateDto (ExchangeRate exRate){
+        int id = exRate.getId();
+        BigDecimal rate = exRate.getRate();
         CurrencyDto baseCurrencyDto = currenciesService.toCurrencyDto(exRate.getBaseCurrency());
         CurrencyDto targetCurrencyDto = currenciesService.toCurrencyDto(exRate.getTargetCurrency());
-        return new ExchangeRateDto(
-                exRate.getId(),
-                baseCurrencyDto,
-                targetCurrencyDto,
-                exRate.getRate()
-        );
+
+        ExchangeRateDto exRateDto = new ExchangeRateDto();
+        exRateDto.setBaseCurrencyDto(baseCurrencyDto);
+        exRateDto.setTargetCurrencyDto(targetCurrencyDto);
+        exRateDto.setId(id);
+        exRateDto.setRate(rate);
+        return exRateDto;
     }
 
 }

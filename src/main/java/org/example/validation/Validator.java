@@ -15,6 +15,8 @@ public class Validator {
     private static final Pattern SIGN_PATTERN = Pattern.compile("\\S{1,5}");
     private static final Pattern PAIR_PATTERN = Pattern.compile("[A-Z]{6}");
 
+    public static final int SCALE = 6;
+
     public void validateParameter(String param, String paramName) {
         if (param == null) {
             throw new BadRequestException(MISSING_PARAMETERS.getMessage() + paramName);
@@ -70,8 +72,7 @@ public class Validator {
         String[] params = str.split("&");
         for (String param : params) {
             if (param.startsWith(key)) {
-                return param
-                        .substring(key.length())
+                return param.substring(key.length())
                         .replace("%2C", ".");
             }
         }
@@ -86,7 +87,7 @@ public class Validator {
                 throw new BadRequestException();
             }
             BigDecimal result = new BigDecimal(value)
-                    .setScale(6, RoundingMode.HALF_UP)
+                    .setScale(SCALE, RoundingMode.HALF_UP)
                     .stripTrailingZeros();
             if(result.compareTo(min) < 0 || result.compareTo(max) > 0){
                 throw new BadRequestException();
