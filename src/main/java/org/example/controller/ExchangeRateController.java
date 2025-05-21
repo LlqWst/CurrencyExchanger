@@ -6,21 +6,24 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
-import org.example.handler.CurrenciesExceptions;
-import org.example.handler.custom_exceptions.BadRequestException;
+import org.example.exceptions.CurrenciesExceptions;
+import org.example.exceptions.custom_exceptions.BadRequestException;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.service.ExchangeRatesService;
+import org.example.validation.Validator;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
-import static org.example.handler.ErrorMessages.*;
+import static org.example.exceptions.ErrorMessages.*;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateController extends HttpServlet{
 
     private ExchangeRatesService exchangeRateService;
+    private Validator validator;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -41,6 +44,7 @@ public class ExchangeRateController extends HttpServlet{
     @Override
     public void init(){
         this.exchangeRateService = new ExchangeRatesService();
+        this.validator = new Validator();
     }
 
     @Override
@@ -51,6 +55,10 @@ public class ExchangeRateController extends HttpServlet{
                 throw new BadRequestException(MISSING_PAIR.getMessage());
             }
             String pair = pathInfo.split("/")[1];
+
+            validator.validateParameter(pair, "pair");
+            validator.validatePair(pair);
+
             ExchangeRateDto exRateDto = exchangeRateService.get(pair);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
         } catch (CurrenciesExceptions e) {
@@ -70,10 +78,16 @@ public class ExchangeRateController extends HttpServlet{
             String encryptedRate = req.getReader()
                     .lines()
                     .collect(Collectors.joining());
+
+            validator.validateParameter(pair, "pair");
+            validator.validatePair(pair);
+
+            validator.validateParameter(encryptedRate, "rate");
+            BigDecimal rate = validator.patchParsRate(encryptedRate);
+
             ExchangePairDto pairDto = new ExchangePairDto();
             pairDto.setPair(pair);
-            pairDto.setRate(encryptedRate);
-
+            pairDto.setRate(rate);
             ExchangeRateDto exRateDto = exchangeRateService.update(pairDto);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
         } catch (CurrenciesExceptions e) {

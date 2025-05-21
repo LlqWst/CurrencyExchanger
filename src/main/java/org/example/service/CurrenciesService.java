@@ -3,37 +3,29 @@ package org.example.service;
 import org.example.dao.CurrenciesDao;
 import org.example.dto.CurrencyDto;
 import org.example.entity.Currency;
-import org.example.handler.custom_exceptions.BadRequestException;
-import org.example.handler.custom_exceptions.DataBaseException;
-import org.example.handler.custom_exceptions.ExistInDbException;
-import org.example.handler.custom_exceptions.NotFoundException;
-import org.example.validation.Validator;
+import org.example.exceptions.CurrenciesExceptions;
+import org.example.exceptions.custom_exceptions.DataBaseException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.example.handler.ErrorMessages.*;
+import static org.example.exceptions.ErrorMessages.*;
 
-public class CurrenciesService implements ServiceCurrencies {
+public class CurrenciesService {
 
     private final CurrenciesDao currenciesDao;
-    private final Validator validator;
 
     public CurrenciesService()  {
         this.currenciesDao = new CurrenciesDao();
-        this.validator = new Validator();
     }
 
     public CurrencyDto getByCode(String code) {
         try {
-            validator.validateCode(code);
             Currency currency = currenciesDao.getByCode(code);
             return toCurrencyDto(currency);
-        } catch (BadRequestException e) {
-            throw new BadRequestException (e.getMessage());
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
-        } catch (Exception e) {
+        } catch (CurrenciesExceptions e) {
+            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
+        } catch (Exception e){
             throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
@@ -42,9 +34,9 @@ public class CurrenciesService implements ServiceCurrencies {
         try {
             Currency currency = currenciesDao.getById(id);
             return toCurrencyDto(currency);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
-        } catch (Exception e) {
+        } catch (CurrenciesExceptions e) {
+            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
+        } catch (Exception e){
             throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }
@@ -65,24 +57,12 @@ public class CurrenciesService implements ServiceCurrencies {
 
     public CurrencyDto save(CurrencyDto currencyDto){
         try {
-            validator.validateName(currencyDto.getName());
-            validator.validateCode(currencyDto.getCode());
-            validator.validateSign(currencyDto.getSign());
-
-//            String code = currencyDto.getCode();
-//            if(currenciesDao.isExist(code)){
-//                throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
-//            }
-
             Currency currency = toCurrency(currencyDto);
             currency = currenciesDao.save(currency);
-
             return toCurrencyDto(currency);
-        } catch (ExistInDbException e) {
-            throw new ExistInDbException(e.getMessage());
-        } catch (BadRequestException e) {
-            throw new BadRequestException(e.getMessage());
-        } catch (Exception e) {
+        } catch (CurrenciesExceptions e) {
+            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
+        } catch (Exception e){
             throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
     }

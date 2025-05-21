@@ -18,19 +18,7 @@ public class CurrenciesListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
-            HikariConfig config = new HikariConfig();
-            config.setJdbcUrl("jdbc:sqlite:C:/Programming/Maven/projects/CurrencyExchanger/db/exchanger.db");
-            config.setDriverClassName("org.sqlite.JDBC");
-
-            config.addDataSourceProperty("foreign_keys", "true");
-            config.addDataSourceProperty("journal_mode", "WAL");
-            config.addDataSourceProperty("synchronous", "NORMAL");
-
-            config.setMaximumPoolSize(10);
-            config.setConnectionTimeout(30000);
-            config.setIdleTimeout(600000);
-            config.setMaxLifetime(1800000);
-            config.setLeakDetectionThreshold(30000);
+            HikariConfig config = getConfig();
 
             dataSource = new HikariDataSource(config);
 
@@ -52,6 +40,23 @@ public class CurrenciesListener implements ServletContextListener {
 
     public static Connection getConnection() throws SQLException{
         return dataSource.getConnection();
+    }
+
+    private static HikariConfig getConfig() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:sqlite:C:/Programming/Maven/projects/CurrencyExchanger/db/exchanger.db");
+        config.setDriverClassName("org.sqlite.JDBC");
+
+        config.addDataSourceProperty("foreign_keys", "true");
+        config.addDataSourceProperty("journal_mode", "WAL");
+        config.addDataSourceProperty("synchronous", "NORMAL");
+
+        config.setMaximumPoolSize(10);
+        config.setConnectionTimeout(30000);
+        config.setIdleTimeout(600000);
+        config.setMaxLifetime(1800000);
+        config.setLeakDetectionThreshold(30000);
+        return config;
     }
 
 }

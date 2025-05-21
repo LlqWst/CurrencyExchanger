@@ -1,4 +1,4 @@
-package org.example.handler;
+package org.example.webfilter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
@@ -9,7 +9,7 @@ import org.example.controller.response_utils.ResponseUtils;
 import java.io.IOException;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
-import static org.example.handler.ErrorMessages.INCORRECT_URL;
+import static org.example.exceptions.ErrorMessages.INCORRECT_URL;
 
 
 @WebFilter("/*")

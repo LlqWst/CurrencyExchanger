@@ -1,11 +1,13 @@
 package org.example.dto;
 
+import java.math.BigDecimal;
+
 public class ExchangePairDto {
     private String baseCurrencyCode;
     private String targetCurrencyCode;
-    private String rate;
+    private BigDecimal rate;
     private String pair;
-    private String amount;
+    private BigDecimal amount;
 
     public String getBaseCurrencyCode() {
         return baseCurrencyCode;
@@ -23,11 +25,11 @@ public class ExchangePairDto {
         this.targetCurrencyCode = targetCurrencyCode;
     }
 
-    public String getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 
-    public void setRate(String rate) {
+    public void setRate(BigDecimal rate) {
         this.rate = rate;
     }
 
@@ -39,11 +41,11 @@ public class ExchangePairDto {
         this.pair = pair;
     }
 
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 }

@@ -1,6 +1,6 @@
-package org.example.handler.custom_exceptions;
+package org.example.exceptions.custom_exceptions;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.handler.CurrenciesExceptions;
+import org.example.exceptions.CurrenciesExceptions;
 
 public class ExistInDbException extends CurrenciesExceptions {
 

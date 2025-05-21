@@ -1,4 +1,4 @@
-package org.example.handler;
+package org.example.exceptions;
 
 public class CurrenciesExceptions extends RuntimeException {
 

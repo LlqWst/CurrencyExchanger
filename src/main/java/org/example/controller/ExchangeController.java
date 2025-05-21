@@ -7,15 +7,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.controller.response_utils.ResponseUtils;
 import org.example.dto.ExchangeDto;
 import org.example.dto.ExchangePairDto;
-import org.example.handler.CurrenciesExceptions;
-import org.example.handler.custom_exceptions.BadRequestException;
+import org.example.exceptions.CurrenciesExceptions;
+import org.example.exceptions.custom_exceptions.BadRequestException;
 import org.example.service.ExchangeService;
 import org.example.validation.Validator;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
-import static org.example.handler.ErrorMessages.*;
+import static org.example.exceptions.ErrorMessages.*;
 
 @WebServlet("/exchange/*")
 public class ExchangeController extends HttpServlet{
@@ -52,11 +53,14 @@ public class ExchangeController extends HttpServlet{
             }
             String from = req.getParameter("from");
             String to = req.getParameter("to");
-            String amount = req.getParameter("amount");
+            String encryptedAmount = req.getParameter("amount");
 
             validator.validateParameter(from, "from");
             validator.validateParameter(to, "to");
-            validator.validateParameter(amount, "amount");
+            validator.validatePair(from, to);
+
+            validator.validateParameter(encryptedAmount, "amount");
+            BigDecimal amount = validator.parsAmount(encryptedAmount);
 
             ExchangePairDto exPairDto = new ExchangePairDto();
             exPairDto.setBaseCurrencyCode(from);

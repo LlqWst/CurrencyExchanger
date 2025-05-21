@@ -1,12 +1,12 @@
 package org.example.validation;
 
-import org.example.handler.custom_exceptions.BadRequestException;
+import org.example.exceptions.custom_exceptions.BadRequestException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.regex.Pattern;
 
-import static org.example.handler.ErrorMessages.*;
+import static org.example.exceptions.ErrorMessages.*;
 
 public class Validator {
 
@@ -20,6 +20,27 @@ public class Validator {
     public void validateParameter(String param, String paramName) {
         if (param == null) {
             throw new BadRequestException(MISSING_PARAMETERS.getMessage() + paramName);
+        }
+    }
+
+    public void validatePair(String pair) {
+        if (!PAIR_PATTERN.matcher(pair).matches()){
+            throw new BadRequestException(INCORRECT_PAIR.getMessage());
+        }
+        String base = pair.substring(0, 3);
+        String target = pair.substring(3, 6);
+        this.validateOnEquals(base, target);
+    }
+
+    public void validatePair(String base, String target) {
+        validateOnEquals(base, target);
+        this.validateCode(base);
+        this.validateCode(target);
+    }
+
+    private void validateOnEquals(String base, String target){
+        if (base.equals(target)){
+            throw new BadRequestException(IDENTICAL_CURRENCIES.getMessage());
         }
     }
 
@@ -38,12 +59,6 @@ public class Validator {
     public void validateSign(String sign) {
         if(!SIGN_PATTERN.matcher(sign).matches()){
             throw new BadRequestException(INCORRECT_SIGN.getMessage());
-        }
-    }
-
-    public void validatePair(String pair) {
-        if (!PAIR_PATTERN.matcher(pair).matches()){
-            throw new BadRequestException(INCORRECT_PAIR.getMessage());
         }
     }
 
@@ -67,16 +82,16 @@ public class Validator {
         }
     }
 
-    public String patchParsRate(String str) {
+    public BigDecimal patchParsRate(String str) {
         String key = "rate=";
         String[] params = str.split("&");
         for (String param : params) {
             if (param.startsWith(key)) {
-                return param.substring(key.length())
+                String rate = param.substring(key.length())
                         .replace("%2C", ".");
+                return this.parsRate(rate);
             }
-        }
-        throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "rate");
+        } throw new BadRequestException(INCORRECT_RATE.getMessage());
     }
 
     private BigDecimal parsValue(String value,BigDecimal min, BigDecimal max ){

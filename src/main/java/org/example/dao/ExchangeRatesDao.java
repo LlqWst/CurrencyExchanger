@@ -3,7 +3,8 @@ package org.example.dao;
 import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
-import org.example.handler.custom_exceptions.NotFoundException;
+import org.example.exceptions.custom_exceptions.ExistInDbException;
+import org.example.exceptions.custom_exceptions.NotFoundException;
 import org.example.validation.Validator;
 
 import java.math.BigDecimal;
@@ -12,7 +13,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.example.handler.ErrorMessages.NOT_FOUND_PAIR;
+import static org.example.exceptions.ErrorMessages.EXIST_PAIR;
+import static org.example.exceptions.ErrorMessages.NOT_FOUND_PAIR;
 
 public class ExchangeRatesDao {
 
@@ -20,10 +22,12 @@ public class ExchangeRatesDao {
     private final static BigDecimal SCALE_MULTIPLY = BigDecimal.valueOf(10).pow(SCALE);
 
     public ExchangeRate get(ExchangeRate exRate) throws SQLException {
-        String query = "SELECT ID, Rate" +
-                " FROM ExchangeRates" +
-                " WHERE BaseCurrencyId = ?" +
-                " AND TargetCurrencyId = ?";
+        String query = """
+                SELECT ID, Rate
+                FROM ExchangeRates
+                WHERE BaseCurrencyId = ?
+                AND TargetCurrencyId = ?
+                """;
 
         int baseId = exRate.getBaseCurrency().getId();
         int targetId = exRate.getTargetCurrency().getId();
@@ -78,7 +82,7 @@ public class ExchangeRatesDao {
         }
     }
 
-    public ExchangeRate save(ExchangeRate exRate) throws SQLException {
+    public ExchangeRate save(ExchangeRate exRate) {
         String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";
 
         int base = exRate.getBaseCurrency().getId();
@@ -101,6 +105,8 @@ public class ExchangeRatesDao {
                 }
             }
             return exRate;
+        } catch (SQLException e){
+            throw new ExistInDbException(EXIST_PAIR.getMessage());
         }
     }
 
@@ -129,15 +135,6 @@ public class ExchangeRatesDao {
                 throw new NotFoundException(NOT_FOUND_PAIR.getMessage());
             }
             return exRate;
-        }
-    }
-
-    public boolean isExist(ExchangeRate exRate) {
-        try {
-            this.get(exRate);
-            return true;
-        } catch (Exception e){
-            return false;
         }
     }
 

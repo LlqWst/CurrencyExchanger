@@ -1,4 +1,4 @@
-package org.example.handler;
+package org.example.exceptions;
 
 public enum ErrorMessages {
     INCORRECT_URL("URL not found"),
@@ -18,8 +18,9 @@ public enum ErrorMessages {
     INCORRECT_AMOUNT("Key 'amount' supports range from 0 to 9,999,999.999999"),
     INCORRECT_METHOD("Method are not supported"),
     INCORRECT_PAIR("Key 'pair' supports only latina UPPER CASE, size is 6"),
+    IDENTICAL_CURRENCIES("Currencies should be different"),
     NOT_FOUND_PAIR("The exchange rate for the pair was not found"),
-    MISSING_PAIR("Pair of currencies are missing");
+    MISSING_PAIR("Pair of currencies are missing in URL");
 
     private final String message;
 

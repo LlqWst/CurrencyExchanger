@@ -2,15 +2,16 @@ package org.example.dao;
 
 import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
-import org.example.handler.custom_exceptions.BadRequestException;
-import org.example.handler.custom_exceptions.NotFoundException;
+import org.example.exceptions.custom_exceptions.BadRequestException;
+import org.example.exceptions.custom_exceptions.ExistInDbException;
+import org.example.exceptions.custom_exceptions.NotFoundException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.example.handler.ErrorMessages.EXIST_CURRENCY;
-import static org.example.handler.ErrorMessages.NOT_EXIST_CURRENCY;
+import static org.example.exceptions.ErrorMessages.EXIST_CURRENCY;
+import static org.example.exceptions.ErrorMessages.NOT_EXIST_CURRENCY;
 
 public class CurrenciesDao {
 
@@ -100,17 +101,7 @@ public class CurrenciesDao {
             }
             return currency;
         } catch (SQLException e){
-            throw new BadRequestException((EXIST_CURRENCY.getMessage() + code));
-        }
-    }
-
-
-    public boolean isExist(String code) {
-        try {
-            this.getByCode(code);
-            return true;
-        } catch (Exception e) {
-            return false;
+            throw new ExistInDbException(EXIST_CURRENCY.getMessage() + code);
         }
     }
 
