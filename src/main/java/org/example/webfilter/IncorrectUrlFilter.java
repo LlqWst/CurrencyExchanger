@@ -4,7 +4,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.controller.response_utils.ResponseUtils;
+import org.example.response_utils.ResponseUtils;
 
 import java.io.IOException;
 

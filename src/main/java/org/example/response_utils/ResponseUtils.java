@@ -1,4 +1,4 @@
-package org.example.controller.response_utils;
+package org.example.response_utils;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;

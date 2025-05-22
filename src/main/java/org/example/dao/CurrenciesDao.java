@@ -2,7 +2,6 @@ package org.example.dao;
 
 import org.example.config.CurrenciesListener;
 import org.example.entity.Currency;
-import org.example.exceptions.custom_exceptions.BadRequestException;
 import org.example.exceptions.custom_exceptions.ExistInDbException;
 import org.example.exceptions.custom_exceptions.NotFoundException;
 

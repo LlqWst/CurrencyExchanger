@@ -8,7 +8,7 @@ import jakarta.servlet.annotation.*;
 import org.example.dto.CurrencyDto;
 import org.example.exceptions.CurrenciesExceptions;
 import org.example.exceptions.custom_exceptions.BadRequestException;
-import org.example.controller.response_utils.ResponseUtils;
+import org.example.response_utils.ResponseUtils;
 import org.example.service.CurrenciesService;
 import org.example.validation.Validator;
 

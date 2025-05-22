@@ -8,7 +8,7 @@ import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
 import org.example.exceptions.CurrenciesExceptions;
 import org.example.exceptions.custom_exceptions.BadRequestException;
-import org.example.controller.response_utils.ResponseUtils;
+import org.example.response_utils.ResponseUtils;
 import org.example.service.ExchangeRatesService;
 import org.example.validation.Validator;
 

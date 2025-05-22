@@ -2,12 +2,12 @@ package org.example.service;
 
 import org.example.dao.ExchangeRatesDao;
 import org.example.dto.CurrencyDto;
+import org.example.mapper.CurrencyMapper;
 import org.example.dto.ExchangePairDto;
 import org.example.dto.ExchangeRateDto;
 import org.example.entity.Currency;
 import org.example.entity.ExchangeRate;
 import org.example.exceptions.CurrenciesExceptions;
-import org.example.exceptions.custom_exceptions.BadRequestException;
 import org.example.exceptions.custom_exceptions.DataBaseException;
 
 import java.math.BigDecimal;
@@ -20,10 +20,12 @@ public class ExchangeRatesService {
 
     private final ExchangeRatesDao exchangeRatesDao;
     private final CurrenciesService currenciesService;
+    private final CurrencyMapper currencyMapper;
 
     public ExchangeRatesService() {
         this.exchangeRatesDao = new ExchangeRatesDao();
         this.currenciesService = new CurrenciesService();
+        this.currencyMapper = CurrencyMapper.INSTANCE;
     }
 
         public ExchangeRateDto get(String exPair) {
@@ -37,9 +39,9 @@ public class ExchangeRatesService {
             ExchangeRate exRate = new ExchangeRate();
             exRate.setBaseCurrency(baseCurrency);
             exRate.setTargetCurrency(targetCurrency);
-            exRate = exchangeRatesDao.get(exRate);
+            ExchangeRate exRateDao = exchangeRatesDao.get(exRate);
 
-            return toExchangeRateDto(exRate);
+            return currencyMapper.toExchangeRateDto(exRateDao);
         } catch (CurrenciesExceptions e) {
             throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
         } catch (Exception e){
@@ -59,8 +61,8 @@ public class ExchangeRatesService {
                 CurrencyDto targetCurrencyDto = currenciesService.get(targetCode);
 
                 ExchangeRateDto exRateDto = new ExchangeRateDto();
-                exRateDto.setBaseCurrencyDto(baseCurrencyDto);
-                exRateDto.setTargetCurrencyDto(targetCurrencyDto);
+                exRateDto.setBaseCurrency(baseCurrencyDto);
+                exRateDto.setTargetCurrency(targetCurrencyDto);
                 exRateDto.setId(exRate.getId());
                 exRateDto.setRate(exRate.getRate());
 
@@ -85,9 +87,9 @@ public class ExchangeRatesService {
             exRate.setBaseCurrency(baseCurrency);
             exRate.setTargetCurrency(targetCurrency);
             exRate.setRate(rate);
-            exRate = exchangeRatesDao.save(exRate);
+            ExchangeRate exRateDao = exchangeRatesDao.save(exRate);
 
-            return toExchangeRateDto(exRate);
+            return currencyMapper.toExchangeRateDto(exRateDao);
         } catch (CurrenciesExceptions e) {
             throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
         } catch (Exception e){
@@ -109,9 +111,9 @@ public class ExchangeRatesService {
             exRate.setBaseCurrency(baseCurrency);
             exRate.setTargetCurrency(targetCurrency);
             exRate.setRate(rate);
-            exRate = exchangeRatesDao.update(exRate);
+            ExchangeRate exRateDao = exchangeRatesDao.update(exRate);
 
-            return toExchangeRateDto(exRate);
+            return currencyMapper.toExchangeRateDto(exRateDao);
         } catch (CurrenciesExceptions e) {
             throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
         } catch (Exception e){
@@ -121,21 +123,7 @@ public class ExchangeRatesService {
 
     private Currency codeToCurrency(String code){
         CurrencyDto currencyDto = currenciesService.getByCode(code);
-        return currenciesService.toCurrency(currencyDto);
-    }
-
-    private ExchangeRateDto toExchangeRateDto (ExchangeRate exRate){
-        int id = exRate.getId();
-        BigDecimal rate = exRate.getRate();
-        CurrencyDto baseCurrencyDto = currenciesService.toCurrencyDto(exRate.getBaseCurrency());
-        CurrencyDto targetCurrencyDto = currenciesService.toCurrencyDto(exRate.getTargetCurrency());
-
-        ExchangeRateDto exRateDto = new ExchangeRateDto();
-        exRateDto.setBaseCurrencyDto(baseCurrencyDto);
-        exRateDto.setTargetCurrencyDto(targetCurrencyDto);
-        exRateDto.setId(id);
-        exRateDto.setRate(rate);
-        return exRateDto;
+        return currencyMapper.toCurrency(currencyDto);
     }
 
 }

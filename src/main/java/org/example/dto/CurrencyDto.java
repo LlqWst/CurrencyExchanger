@@ -37,4 +37,5 @@ public class CurrencyDto {
     public void setSign(String sign) {
         this.sign = sign;
     }
+
 }
