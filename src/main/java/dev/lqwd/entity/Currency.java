@@ -1,6 +1,8 @@
 package dev.lqwd.entity;
 
-public class Currency {
+import static java.util.Objects.requireNonNull;
+
+public class Currency extends Entity {
     private int id;
     private String name;
     private String code;
@@ -17,7 +19,7 @@ public class Currency {
     }
 
     public String getName() {
-        return name;
+        return super.requireNonNull(name);
     }
 
     public void setName(String name) {
@@ -25,7 +27,7 @@ public class Currency {
     }
 
     public String getCode() {
-        return code;
+        return super.requireNonNull(code);
     }
 
     public void setCode(String code) {
@@ -34,7 +36,7 @@ public class Currency {
 
 
     public String getSign() {
-        return sign;
+        return super.requireNonNull(sign);
     }
 
     public void setSign(String sign) {

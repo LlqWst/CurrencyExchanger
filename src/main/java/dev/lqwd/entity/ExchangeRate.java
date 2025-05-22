@@ -2,7 +2,7 @@ package dev.lqwd.entity;
 
 import java.math.BigDecimal;
 
-public class ExchangeRate {
+public class ExchangeRate extends Entity {
 
     private int id;
     private Currency baseCurrency;
@@ -21,7 +21,7 @@ public class ExchangeRate {
     }
 
     public Currency getBaseCurrency() {
-        return baseCurrency;
+        return super.requireNonNull(baseCurrency);
     }
 
     public void setBaseCurrency(Currency baseCurrency) {
@@ -29,7 +29,7 @@ public class ExchangeRate {
     }
 
     public Currency getTargetCurrency() {
-        return targetCurrency;
+        return super.requireNonNull(targetCurrency);
     }
 
     public void setTargetCurrency(Currency targetCurrency) {
@@ -37,7 +37,7 @@ public class ExchangeRate {
     }
 
     public BigDecimal getRate() {
-        return rate;
+        return super.requireNonNull(rate);
     }
 
     public void setRate(BigDecimal rate) {

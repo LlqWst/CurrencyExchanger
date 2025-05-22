@@ -58,7 +58,6 @@ public class ExchangeRateController extends HttpServlet{
 
             validator.validateParameter(pair, "pair");
             validator.validatePair(pair);
-
             ExchangeRateDto exRateDto = exchangeRateService.get(pair);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
         } catch (CurrenciesExceptions e) {

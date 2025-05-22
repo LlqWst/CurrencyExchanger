@@ -2,7 +2,7 @@ package dev.lqwd.dto;
 
 import java.math.BigDecimal;
 
-public class ExchangePairDto {
+public class ExchangePairDto extends Dto {
     private String baseCurrencyCode;
     private String targetCurrencyCode;
     private BigDecimal rate;
@@ -10,7 +10,7 @@ public class ExchangePairDto {
     private BigDecimal amount;
 
     public String getBaseCurrencyCode() {
-        return baseCurrencyCode;
+        return requireNonNull(baseCurrencyCode);
     }
 
     public void setBaseCurrencyCode(String baseCurrencyCode) {
@@ -18,7 +18,7 @@ public class ExchangePairDto {
     }
 
     public String getTargetCurrencyCode() {
-        return targetCurrencyCode;
+        return requireNonNull(targetCurrencyCode);
     }
 
     public void setTargetCurrencyCode(String targetCurrencyCode) {
@@ -26,7 +26,7 @@ public class ExchangePairDto {
     }
 
     public BigDecimal getRate() {
-        return rate;
+        return requireNonNull(rate);
     }
 
     public void setRate(BigDecimal rate) {
@@ -34,7 +34,7 @@ public class ExchangePairDto {
     }
 
     public String getPair() {
-        return pair;
+        return requireNonNull(pair);
     }
 
     public void setPair(String pair) {
@@ -42,11 +42,12 @@ public class ExchangePairDto {
     }
 
     public BigDecimal getAmount() {
-        return amount;
+        return requireNonNull(amount);
     }
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
+
 }
 

@@ -2,7 +2,7 @@ package dev.lqwd.service;
 
 import dev.lqwd.dao.ExchangeRatesDao;
 import dev.lqwd.dto.CurrencyDto;
-import dev.lqwd.mapper.CurrencyMapper;
+import dev.lqwd.mapper.CurrencyAndRateMapper;
 import dev.lqwd.dto.ExchangePairDto;
 import dev.lqwd.dto.ExchangeRateDto;
 import dev.lqwd.entity.Currency;
@@ -20,12 +20,12 @@ public class ExchangeRatesService {
 
     private final ExchangeRatesDao exchangeRatesDao;
     private final CurrenciesService currenciesService;
-    private final CurrencyMapper currencyMapper;
+    private final CurrencyAndRateMapper currencyMapper;
 
     public ExchangeRatesService() {
         this.exchangeRatesDao = new ExchangeRatesDao();
         this.currenciesService = new CurrenciesService();
-        this.currencyMapper = CurrencyMapper.INSTANCE;
+        this.currencyMapper = CurrencyAndRateMapper.INSTANCE;
     }
 
         public ExchangeRateDto get(String exPair) {

@@ -1,6 +1,8 @@
 package dev.lqwd.dto;
 
-public class CurrencyDto {
+import dev.lqwd.exceptions.custom_exceptions.DataBaseException;
+
+public class CurrencyDto extends Dto {
     private int id;
     private String name;
     private String code;
@@ -15,7 +17,7 @@ public class CurrencyDto {
     }
 
     public String getCode() {
-        return code;
+        return requireNonNull(code);
     }
 
     public void setCode(String code) {
@@ -23,7 +25,7 @@ public class CurrencyDto {
     }
 
     public String getName() {
-        return name;
+        return requireNonNull(name);
     }
 
     public void setName(String name) {
@@ -31,7 +33,7 @@ public class CurrencyDto {
     }
 
     public String getSign() {
-        return sign;
+        return requireNonNull(sign);
     }
 
     public void setSign(String sign) {

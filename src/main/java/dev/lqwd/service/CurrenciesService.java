@@ -2,7 +2,7 @@ package dev.lqwd.service;
 
 import dev.lqwd.dao.CurrenciesDao;
 import dev.lqwd.dto.CurrencyDto;
-import dev.lqwd.mapper.CurrencyMapper;
+import dev.lqwd.mapper.CurrencyAndRateMapper;
 import dev.lqwd.entity.Currency;
 import dev.lqwd.exceptions.CurrenciesExceptions;
 import dev.lqwd.exceptions.custom_exceptions.DataBaseException;
@@ -15,11 +15,11 @@ import static dev.lqwd.exceptions.ErrorMessages.*;
 public class CurrenciesService {
 
     private final CurrenciesDao currenciesDao;
-    private final CurrencyMapper currencyMapper;
+    private final CurrencyAndRateMapper currencyMapper;
 
     public CurrenciesService()  {
         this.currenciesDao = new CurrenciesDao();
-        this.currencyMapper = CurrencyMapper.INSTANCE;
+        this.currencyMapper = CurrencyAndRateMapper.INSTANCE;
     }
 
     public CurrencyDto getByCode(String code) {
