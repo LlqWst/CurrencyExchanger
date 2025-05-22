@@ -1,4 +1,4 @@
-package dev.lqwd.validation;
+package dev.lqwd.validator;
 
 import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
 
@@ -74,7 +74,7 @@ public class Validator {
 
     public BigDecimal parsAmount(String amount){
         try {
-            BigDecimal min = new BigDecimal("0");
+            BigDecimal min = new BigDecimal("0.000001");
             BigDecimal max = new BigDecimal("9999999.999999");
             return parsValue(amount, min, max);
         } catch (Exception e){
@@ -91,7 +91,7 @@ public class Validator {
                         .replace("%2C", ".");
                 return this.parsRate(rate);
             }
-        } throw new BadRequestException(INCORRECT_RATE.getMessage());
+        } throw new BadRequestException(MISSING_PARAMETERS.getMessage() + "rate");
     }
 
     private BigDecimal parsValue(String value,BigDecimal min, BigDecimal max ){

@@ -5,7 +5,7 @@ import dev.lqwd.entity.Currency;
 import dev.lqwd.entity.ExchangeRate;
 import dev.lqwd.exceptions.custom_exceptions.ExistInDbException;
 import dev.lqwd.exceptions.custom_exceptions.NotFoundException;
-import dev.lqwd.validation.Validator;
+import dev.lqwd.validator.Validator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,11 +23,11 @@ public class ExchangeRatesDao {
 
     public ExchangeRate get(ExchangeRate exRate) throws SQLException {
         String query = """
-                SELECT ID, Rate
-                FROM ExchangeRates
-                WHERE BaseCurrencyId = ?
-                AND TargetCurrencyId = ?
-                """;
+                    SELECT ID, Rate
+                    FROM ExchangeRates
+                    WHERE BaseCurrencyId = ?
+                    AND TargetCurrencyId = ?
+                    """;
 
         int baseId = exRate.getBaseCurrency().getId();
         int targetId = exRate.getTargetCurrency().getId();
@@ -111,11 +111,13 @@ public class ExchangeRatesDao {
     }
 
     public ExchangeRate update(ExchangeRate exRate) throws SQLException {
-        String query = "UPDATE ExchangeRates" +
-                " SET Rate = ?" +
-                " WHERE BaseCurrencyId = ?" +
-                " AND TargetCurrencyId = ?" +
-                " RETURNING ID";
+        String query = """
+                    UPDATE ExchangeRates
+                    SET Rate = ?
+                    WHERE BaseCurrencyId = ?
+                    AND TargetCurrencyId = ?
+                    RETURNING ID
+                    """;
 
         int base = exRate.getBaseCurrency().getId();
         int target = exRate.getTargetCurrency().getId();

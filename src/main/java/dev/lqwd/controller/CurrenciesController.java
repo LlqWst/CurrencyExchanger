@@ -10,7 +10,7 @@ import dev.lqwd.exceptions.CurrenciesExceptions;
 import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
 import dev.lqwd.response_utils.ResponseUtils;
 import dev.lqwd.service.CurrenciesService;
-import dev.lqwd.validation.Validator;
+import dev.lqwd.validator.Validator;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 import static dev.lqwd.exceptions.ErrorMessages.*;
@@ -80,11 +80,12 @@ public class CurrenciesController extends HttpServlet{
 
             validation(name, code, sign);
 
-            CurrencyDto currencyDto = new CurrencyDto();
-            currencyDto.setName(name);
-            currencyDto.setCode(code);
-            currencyDto.setSign(sign);
-            currencyDto = currenciesService.save(currencyDto);
+            CurrencyDto dto = new CurrencyDto();
+            dto.setName(name);
+            dto.setCode(code);
+            dto.setSign(sign);
+
+            CurrencyDto currencyDto = currenciesService.save(dto);
             ResponseUtils.sendJson(res, currencyDto, SC_CREATED);
         } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());

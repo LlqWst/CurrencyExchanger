@@ -18,7 +18,7 @@ public class ExchangeRateDto extends Dto {
     }
 
     public CurrencyDto getBaseCurrency() {
-        return requireNonNull(baseCurrency);
+        return super.requireNonNull(baseCurrency);
     }
 
     public void setBaseCurrency(CurrencyDto baseCurrency) {
@@ -26,7 +26,7 @@ public class ExchangeRateDto extends Dto {
     }
 
     public CurrencyDto getTargetCurrency() {
-        return requireNonNull(targetCurrency);
+        return super.requireNonNull(targetCurrency);
     }
 
     public void setTargetCurrency(CurrencyDto targetCurrency) {
@@ -34,7 +34,7 @@ public class ExchangeRateDto extends Dto {
     }
 
     public BigDecimal getRate() {
-        return requireNonNull(rate);
+        return super.requireNonNull(rate);
     }
 
     public void setRate(BigDecimal rate) {

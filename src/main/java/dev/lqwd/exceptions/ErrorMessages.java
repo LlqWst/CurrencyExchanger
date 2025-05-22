@@ -15,7 +15,7 @@ public enum ErrorMessages {
     INCORRECT_SIGN("Key 'sign' supports size from 1 to 5 char"),
     INCORRECT_CODE("Key 'currency code' supports only latina UPPER CASE, size is 3"),
     INCORRECT_RATE("Key 'rate' supports range from 0.000001 to 999,999.999999"),
-    INCORRECT_AMOUNT("Key 'amount' supports range from 0 to 9,999,999.999999"),
+    INCORRECT_AMOUNT("Key 'amount' supports range from 0.000001 to 9,999,999.999999"),
     INCORRECT_METHOD("Method are not supported"),
     INCORRECT_PAIR("Key 'pair' supports only latina UPPER CASE, size is 6"),
     IDENTICAL_CURRENCIES("Currencies should be different"),

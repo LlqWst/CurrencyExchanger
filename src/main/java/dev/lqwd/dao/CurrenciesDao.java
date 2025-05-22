@@ -15,7 +15,11 @@ import static dev.lqwd.exceptions.ErrorMessages.NOT_EXIST_CURRENCY;
 public class CurrenciesDao {
 
     public Currency getByCode(String code) throws SQLException {
-        String query = "SELECT ID, FullName, Sign FROM Currencies WHERE Code = ?";
+        String query = """
+                    SELECT ID, FullName, Sign
+                    FROM Currencies
+                    WHERE Code = ?
+                    """;
 
         try (Connection connection = CurrenciesListener.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(query);
@@ -37,7 +41,11 @@ public class CurrenciesDao {
     }
 
     public Currency getById(int id) throws SQLException {
-        String query = "SELECT Code, FullName, Sign FROM Currencies WHERE ID = ?";
+        String query = """
+                    SELECT Code, FullName, Sign
+                    FROM Currencies
+                    WHERE ID = ?
+                    """;
 
         try (Connection connection = CurrenciesListener.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(query);

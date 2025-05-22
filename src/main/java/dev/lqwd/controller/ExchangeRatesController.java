@@ -10,7 +10,7 @@ import dev.lqwd.exceptions.CurrenciesExceptions;
 import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
 import dev.lqwd.response_utils.ResponseUtils;
 import dev.lqwd.service.ExchangeRatesService;
-import dev.lqwd.validation.Validator;
+import dev.lqwd.validator.Validator;
 
 import java.io.IOException;
 import java.math.BigDecimal;

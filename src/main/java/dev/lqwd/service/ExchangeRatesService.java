@@ -39,9 +39,9 @@ public class ExchangeRatesService {
             ExchangeRate exRate = new ExchangeRate();
             exRate.setBaseCurrency(baseCurrency);
             exRate.setTargetCurrency(targetCurrency);
-            ExchangeRate exRateDao = exchangeRatesDao.get(exRate);
+            ExchangeRate exRateEntity = exchangeRatesDao.get(exRate);
 
-            return currencyMapper.toExchangeRateDto(exRateDao);
+            return currencyMapper.toExchangeRateDto(exRateEntity);
         } catch (CurrenciesExceptions e) {
             throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
         } catch (Exception e){
@@ -76,20 +76,9 @@ public class ExchangeRatesService {
 
     public ExchangeRateDto save(ExchangePairDto exPairDto){
         try {
-            String baseCode = exPairDto.getBaseCurrencyCode();
-            String targetCode = exPairDto.getTargetCurrencyCode();
-            BigDecimal rate = exPairDto.getRate();
-
-            Currency baseCurrency = codeToCurrency(baseCode);
-            Currency targetCurrency = codeToCurrency(targetCode);
-
-            ExchangeRate exRate = new ExchangeRate();
-            exRate.setBaseCurrency(baseCurrency);
-            exRate.setTargetCurrency(targetCurrency);
-            exRate.setRate(rate);
-            ExchangeRate exRateDao = exchangeRatesDao.save(exRate);
-
-            return currencyMapper.toExchangeRateDto(exRateDao);
+            ExchangeRate exRate = setExPair(exPairDto);
+            ExchangeRate exRateEntity = exchangeRatesDao.save(exRate);
+            return currencyMapper.toExchangeRateDto(exRateEntity);
         } catch (CurrenciesExceptions e) {
             throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
         } catch (Exception e){
@@ -99,26 +88,29 @@ public class ExchangeRatesService {
 
     public ExchangeRateDto update (ExchangePairDto exPairDto) {
         try {
-            String pair = exPairDto.getPair();
-            String baseCode = pair.substring(0, 3);
-            String targetCode = pair.substring(3, 6);
-            BigDecimal rate = exPairDto.getRate();
-
-            Currency baseCurrency = codeToCurrency(baseCode);
-            Currency targetCurrency = codeToCurrency(targetCode);
-
-            ExchangeRate exRate = new ExchangeRate();
-            exRate.setBaseCurrency(baseCurrency);
-            exRate.setTargetCurrency(targetCurrency);
-            exRate.setRate(rate);
-            ExchangeRate exRateDao = exchangeRatesDao.update(exRate);
-
-            return currencyMapper.toExchangeRateDto(exRateDao);
+            ExchangeRate exRate = setExPair(exPairDto);
+            ExchangeRate exRateEntity = exchangeRatesDao.update(exRate);
+            return currencyMapper.toExchangeRateDto(exRateEntity);
         } catch (CurrenciesExceptions e) {
             throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
         } catch (Exception e){
             throw new DataBaseException(INTERNAL_ERROR.getMessage());
         }
+    }
+
+    private ExchangeRate setExPair(ExchangePairDto exPairDto) {
+        String baseCode = exPairDto.getBaseCurrencyCode();
+        String targetCode = exPairDto.getTargetCurrencyCode();
+        BigDecimal rate = exPairDto.getRate();
+
+        Currency baseCurrency = codeToCurrency(baseCode);
+        Currency targetCurrency = codeToCurrency(targetCode);
+
+        ExchangeRate exRate = new ExchangeRate();
+        exRate.setBaseCurrency(baseCurrency);
+        exRate.setTargetCurrency(targetCurrency);
+        exRate.setRate(rate);
+        return exRate;
     }
 
     private Currency codeToCurrency(String code){

@@ -1,7 +1,5 @@
 package dev.lqwd.entity;
 
-import static java.util.Objects.requireNonNull;
-
 public class Currency extends Entity {
     private int id;
     private String name;

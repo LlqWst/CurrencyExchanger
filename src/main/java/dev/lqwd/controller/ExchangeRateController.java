@@ -10,7 +10,7 @@ import dev.lqwd.exceptions.CurrenciesExceptions;
 import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
 import dev.lqwd.response_utils.ResponseUtils;
 import dev.lqwd.service.ExchangeRatesService;
-import dev.lqwd.validation.Validator;
+import dev.lqwd.validator.Validator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -81,11 +81,11 @@ public class ExchangeRateController extends HttpServlet{
             validator.validateParameter(pair, "pair");
             validator.validatePair(pair);
 
-            validator.validateParameter(encryptedRate, "rate");
             BigDecimal rate = validator.patchParsRate(encryptedRate);
 
             ExchangePairDto pairDto = new ExchangePairDto();
-            pairDto.setPair(pair);
+            pairDto.setBaseCurrencyCode(pair.substring(0, 3));
+            pairDto.setTargetCurrencyCode(pair.substring(3, 6));
             pairDto.setRate(rate);
             ExchangeRateDto exRateDto = exchangeRateService.update(pairDto);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);

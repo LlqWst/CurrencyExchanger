@@ -19,7 +19,6 @@ public class CurrenciesListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         try {
             HikariConfig config = getConfig();
-
             dataSource = new HikariDataSource(config);
 
             ServletContext ctx = sce.getServletContext();

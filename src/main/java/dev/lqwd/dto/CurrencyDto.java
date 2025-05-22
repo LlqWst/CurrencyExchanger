@@ -1,7 +1,5 @@
 package dev.lqwd.dto;
 
-import dev.lqwd.exceptions.custom_exceptions.DataBaseException;
-
 public class CurrencyDto extends Dto {
     private int id;
     private String name;
@@ -17,7 +15,7 @@ public class CurrencyDto extends Dto {
     }
 
     public String getCode() {
-        return requireNonNull(code);
+        return super.requireNonNull(code);
     }
 
     public void setCode(String code) {
@@ -25,7 +23,7 @@ public class CurrencyDto extends Dto {
     }
 
     public String getName() {
-        return requireNonNull(name);
+        return super.requireNonNull(name);
     }
 
     public void setName(String name) {
@@ -33,7 +31,7 @@ public class CurrencyDto extends Dto {
     }
 
     public String getSign() {
-        return requireNonNull(sign);
+        return super.requireNonNull(sign);
     }
 
     public void setSign(String sign) {

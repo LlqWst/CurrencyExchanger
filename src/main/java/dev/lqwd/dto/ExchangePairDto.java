@@ -6,11 +6,10 @@ public class ExchangePairDto extends Dto {
     private String baseCurrencyCode;
     private String targetCurrencyCode;
     private BigDecimal rate;
-    private String pair;
     private BigDecimal amount;
 
     public String getBaseCurrencyCode() {
-        return requireNonNull(baseCurrencyCode);
+        return super.requireNonNull(baseCurrencyCode);
     }
 
     public void setBaseCurrencyCode(String baseCurrencyCode) {
@@ -18,7 +17,7 @@ public class ExchangePairDto extends Dto {
     }
 
     public String getTargetCurrencyCode() {
-        return requireNonNull(targetCurrencyCode);
+        return super.requireNonNull(targetCurrencyCode);
     }
 
     public void setTargetCurrencyCode(String targetCurrencyCode) {
@@ -26,23 +25,15 @@ public class ExchangePairDto extends Dto {
     }
 
     public BigDecimal getRate() {
-        return requireNonNull(rate);
+        return super.requireNonNull(rate);
     }
 
     public void setRate(BigDecimal rate) {
         this.rate = rate;
     }
 
-    public String getPair() {
-        return requireNonNull(pair);
-    }
-
-    public void setPair(String pair) {
-        this.pair = pair;
-    }
-
     public BigDecimal getAmount() {
-        return requireNonNull(amount);
+        return super.requireNonNull(amount);
     }
 
     public void setAmount(BigDecimal amount) {

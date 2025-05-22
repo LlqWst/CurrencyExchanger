@@ -6,7 +6,7 @@ import dev.lqwd.dto.ExchangePairDto;
 import dev.lqwd.exceptions.CurrenciesExceptions;
 import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
 import dev.lqwd.exceptions.custom_exceptions.DataBaseException;
-import dev.lqwd.validation.Validator;
+import dev.lqwd.validator.Validator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
