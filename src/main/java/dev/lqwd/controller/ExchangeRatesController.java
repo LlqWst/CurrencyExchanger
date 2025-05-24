@@ -51,9 +51,7 @@ public class ExchangeRatesController extends HttpServlet{
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo != null) {
-                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
-            }
+            validator.validatePathVariable(pathInfo);
             List<ExchangeRateDto> exRatesDto = exchangeRatesService.getAll();
             ResponseUtils.sendJson(res, exRatesDto, SC_OK);
         } catch (CurrenciesExceptions e) {
@@ -65,18 +63,16 @@ public class ExchangeRatesController extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo != null){
-                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
-            }
+            validator.validatePathVariable(pathInfo);
             String baseCurrencyCode = req.getParameter("baseCurrencyCode");
             String targetCurrencyCode = req.getParameter("targetCurrencyCode");
             String rateEncrypted = req.getParameter("rate");
 
-            validator.validateParameter(baseCurrencyCode, "baseCurrencyCode");
-            validator.validateParameter(targetCurrencyCode, "targetCurrencyCode");
+            validator.validateParameter(baseCurrencyCode);
+            validator.validateParameter(targetCurrencyCode);
             validator.validatePair(baseCurrencyCode, targetCurrencyCode);
 
-            validator.validateParameter(rateEncrypted, "rate");
+            validator.validateParameter(rateEncrypted);
             BigDecimal rate = validator.parsRate(rateEncrypted);
 
             ExchangePairDto exPairDto = new ExchangePairDto();

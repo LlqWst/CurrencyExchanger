@@ -71,9 +71,7 @@ public class CurrenciesController extends HttpServlet{
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo != null){
-                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
-            }
+            validator.validatePathVariable(pathInfo);
             String name = req.getParameter("name");
             String code = req.getParameter("code");
             String sign = req.getParameter("sign");
@@ -93,14 +91,11 @@ public class CurrenciesController extends HttpServlet{
     }
 
     private void validation(String name, String code, String sign){
-        validator.validateParameter(name);
-        validator.validateName(name);
-
         validator.validateParameter(code);
-        validator.validateCode(code);
-
+        validator.validateParameter(name);
         validator.validateParameter(sign);
-        validator.validateSign(sign);
+
+        validator.validateCreation(code, name, sign);
     }
 
 }

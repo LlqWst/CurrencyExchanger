@@ -48,18 +48,16 @@ public class ExchangeController extends HttpServlet{
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo != null) {
-                throw new BadRequestException(INCORRECT_PATH_VARIABLES.getMessage());
-            }
+            validator.validatePathVariable(pathInfo);
             String from = req.getParameter("from");
             String to = req.getParameter("to");
             String encryptedAmount = req.getParameter("amount");
 
-            validator.validateParameter(from, "from");
-            validator.validateParameter(to, "to");
-            validator.validatePair(from, to);
+            validator.validateParameter(from);
+            validator.validateParameter(to);
+            validator.validateParameter(encryptedAmount);
 
-            validator.validateParameter(encryptedAmount, "amount");
+            validator.validatePair(from, to);
             BigDecimal amount = validator.parsAmount(encryptedAmount);
 
             ExchangePairDto exPairDto = new ExchangePairDto();

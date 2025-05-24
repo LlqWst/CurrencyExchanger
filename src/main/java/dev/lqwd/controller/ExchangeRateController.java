@@ -56,7 +56,7 @@ public class ExchangeRateController extends HttpServlet{
             }
             String pair = pathInfo.split("/")[1];
 
-            validator.validateParameter(pair, "pair");
+            validator.validateParameter(pair);
             validator.validatePair(pair);
             ExchangeRateDto exRateDto = exchangeRateService.get(pair);
             ResponseUtils.sendJson(res, exRateDto, SC_OK);
@@ -78,7 +78,7 @@ public class ExchangeRateController extends HttpServlet{
                     .lines()
                     .collect(Collectors.joining());
 
-            validator.validateParameter(pair, "pair");
+            validator.validateParameter(pair);
             validator.validatePair(pair);
 
             BigDecimal rate = validator.patchParsRate(encryptedRate);
