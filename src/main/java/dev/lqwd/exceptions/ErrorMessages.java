@@ -1,9 +1,7 @@
 package dev.lqwd.exceptions;
 
 public enum ErrorMessages {
-    INCORRECT_URL("URL not found"),
     INCORRECT_PATH_VARIABLES("Only one path segment are supported"),
-    INCORRECT_PARAMETER("Incorrect parameter"),
     INCORRECT_CONVERSION_INPUT("This currency pair does not exist. There is no cross-course set"),
     NOT_EXIST_CURRENCY("Currency not found: "),
     EXIST_CURRENCY("Currency already exist: "),

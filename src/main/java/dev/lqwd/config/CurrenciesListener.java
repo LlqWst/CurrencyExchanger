@@ -43,8 +43,7 @@ public class CurrenciesListener implements ServletContextListener {
 
     private static HikariConfig getConfig() {
         HikariConfig config = new HikariConfig();
-        //config.setJdbcUrl("jdbc:sqlite:C:/Programming/Maven/projects/CurrencyExchanger/db/exchanger.db"); // для IDEA
-        config.setJdbcUrl("jdbc:sqlite::resource:exchanger.db"); // для сервера
+        config.setJdbcUrl("jdbc:sqlite::resource:exchanger.db"); // бд в памяти
         config.setDriverClassName("org.sqlite.JDBC");
 
         config.addDataSourceProperty("foreign_keys", "true");

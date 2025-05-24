@@ -51,9 +51,7 @@ public class ExchangeRateController extends HttpServlet{
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo == null || pathInfo.equals("/")) {
-                throw new BadRequestException(MISSING_PAIR.getMessage());
-            }
+            validator.validatePairVariable(pathInfo);
             String pair = pathInfo.split("/")[1];
 
             validator.validateParameter(pair);
@@ -69,9 +67,7 @@ public class ExchangeRateController extends HttpServlet{
     protected void doPatch (HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
             String pathInfo = req.getPathInfo();
-            if(pathInfo == null || pathInfo.equals("/")){
-                throw new BadRequestException(MISSING_PAIR.getMessage());
-            }
+            validator.validatePairVariable(pathInfo);
             String pair = pathInfo.split("/")[1];
 
             String encryptedRate = req.getReader()

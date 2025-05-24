@@ -77,6 +77,12 @@ public class Validator {
         }
     }
 
+    public void validatePairVariable(String pathInfo){
+        if(pathInfo == null || pathInfo.equals("/")) {
+            throw new BadRequestException(MISSING_PAIR.getMessage());
+        }
+    }
+
     public BigDecimal parsAmount(String amount){
         try {
             BigDecimal min = new BigDecimal("0.000001");
