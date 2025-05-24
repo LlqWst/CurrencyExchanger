@@ -28,7 +28,7 @@ public class ExchangeRatesService {
         this.currencyMapper = CurrencyAndRateMapper.INSTANCE;
     }
 
-        public ExchangeRateDto get(String exPair) {
+    public ExchangeRateDto get(String exPair) {
         try {
             String baseCode = exPair.substring(0, 3);
             String targetCode = exPair.substring(3, 6);

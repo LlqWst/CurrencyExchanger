@@ -24,7 +24,6 @@ public class CurrenciesService {
 
     public CurrencyDto getByCode(String code) {
         try {
-
             Currency currencyDao = currenciesDao.getByCode(code);
             return currencyMapper.toCurrencyDto(currencyDao);
         } catch (CurrenciesExceptions e) {

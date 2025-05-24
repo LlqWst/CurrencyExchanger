@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import dev.lqwd.dto.ExchangePairDto;
 import dev.lqwd.dto.ExchangeRateDto;
 import dev.lqwd.exceptions.CurrenciesExceptions;
-import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
 import dev.lqwd.response_utils.ResponseUtils;
 import dev.lqwd.service.ExchangeRatesService;
 import dev.lqwd.validator.Validator;
@@ -75,9 +74,10 @@ public class ExchangeRateController extends HttpServlet{
                     .collect(Collectors.joining());
 
             validator.validateParameter(pair);
-            validator.validatePair(pair);
+            String validRate = validator.validatePatchRateParameter(encryptedRate);
 
-            BigDecimal rate = validator.patchParsRate(encryptedRate);
+            validator.validatePair(pair);
+            BigDecimal rate = validator.parsRate(validRate);
 
             ExchangePairDto pairDto = new ExchangePairDto();
             pairDto.setBaseCurrencyCode(pair.substring(0, 3));

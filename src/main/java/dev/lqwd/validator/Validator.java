@@ -93,14 +93,13 @@ public class Validator {
         }
     }
 
-    public BigDecimal patchParsRate(String str) {
+    public String validatePatchRateParameter(String str) {
         String key = "rate=";
         String[] params = str.split("&");
         for (String param : params) {
             if (param.startsWith(key)) {
-                String rate = param.substring(key.length())
+                return param.substring(key.length())
                         .replace("%2C", ".");
-                return this.parsRate(rate);
             }
         } throw new BadRequestException(MISSING_PARAMETERS.getMessage());
     }
