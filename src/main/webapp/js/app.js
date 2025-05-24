@@ -1,5 +1,6 @@
 $(document).ready(function() {
-    const host = "http://localhost:8080/CurrencyExchanger-1.0-SNAPSHOT"
+    const host = "http://localhost:8080/CurrencyExchanger"
+    //const host = "http://185.221.155.177:8080/CurrencyExchanger"
 
     //CurrencyExchanger-1.0-SNAPSHOT.war указываем без war
 

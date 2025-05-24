@@ -63,19 +63,19 @@ public class ExchangeService {
         try {
             return exchangeRatesService.get(baseToTarget)
                     .getRate();
-        } catch (Exception _) {}
+        } catch (Exception ignored) {}
 
         try {
             BigDecimal divider = new BigDecimal("1");
             BigDecimal rate = exchangeRatesService.get(targetToBase).getRate();
             return divider.divide(rate, SCALE, RoundingMode.HALF_UP);
-        } catch (Exception _) {}
+        } catch (Exception ignored) {}
 
         try {
             BigDecimal UsdToBaseRate = exchangeRatesService.get(usdToBase).getRate();
             BigDecimal UsdToTargetRate = exchangeRatesService.get(usdToTarget).getRate();
             return UsdToTargetRate.divide(UsdToBaseRate, SCALE, RoundingMode.HALF_UP);
-        } catch (Exception _) {
+        } catch (Exception e) {
             throw new BadRequestException(INCORRECT_CONVERSION_INPUT.getMessage());
         }
     }

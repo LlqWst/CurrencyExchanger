@@ -52,14 +52,12 @@ public class CurrenciesController extends HttpServlet{
                 ResponseUtils.sendJson(res, currenciesDto, SC_OK);
                 return;
             }
-
             if (pathInfo.equals("/")) {
                 throw new BadRequestException(MISSING_CURRENCY.getMessage());
             }
 
             String code = pathInfo.split("/")[1];
             validator.validateCode(code);
-
             CurrencyDto currencyDto = currenciesService.getByCode(code);
             ResponseUtils.sendJson(res, currencyDto, SC_OK);
         } catch (CurrenciesExceptions e) {
@@ -76,7 +74,10 @@ public class CurrenciesController extends HttpServlet{
             String code = req.getParameter("code");
             String sign = req.getParameter("sign");
 
-            validation(name, code, sign);
+            validator.validateParameter(code);
+            validator.validateParameter(name);
+            validator.validateParameter(sign);
+            validator.validateCreation(code, name, sign);
 
             CurrencyDto dto = new CurrencyDto();
             dto.setName(name);
@@ -88,14 +89,6 @@ public class CurrenciesController extends HttpServlet{
         } catch (CurrenciesExceptions e) {
             ResponseUtils.sendError(res, e.getMessage(), e.getStatusCode());
         }
-    }
-
-    private void validation(String name, String code, String sign){
-        validator.validateParameter(code);
-        validator.validateParameter(name);
-        validator.validateParameter(sign);
-
-        validator.validateCreation(code, name, sign);
     }
 
 }
