@@ -23,6 +23,12 @@ public class Validator {
         }
     }
 
+    public void validateParameter(String param) {
+        if (param == null) {
+            throw new BadRequestException(MISSING_PARAMETERS_CREATION.getMessage());
+        }
+    }
+
     public void validatePair(String pair) {
         if (!PAIR_PATTERN.matcher(pair).matches()){
             throw new BadRequestException(INCORRECT_PAIR.getMessage());

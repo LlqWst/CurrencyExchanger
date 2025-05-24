@@ -93,13 +93,13 @@ public class CurrenciesController extends HttpServlet{
     }
 
     private void validation(String name, String code, String sign){
-        validator.validateParameter(name, "name");
+        validator.validateParameter(name);
         validator.validateName(name);
 
-        validator.validateParameter(code, "code");
+        validator.validateParameter(code);
         validator.validateCode(code);
 
-        validator.validateParameter(sign, "sign");
+        validator.validateParameter(sign);
         validator.validateSign(sign);
     }
 

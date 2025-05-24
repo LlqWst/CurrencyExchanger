@@ -11,6 +11,7 @@ public enum ErrorMessages {
     INTERNAL_ERROR("Data Base is busy"),
     MISSING_CURRENCY("Currency missing in URL"),
     MISSING_PARAMETERS("Parameter is missing: "),
+    MISSING_PARAMETERS_CREATION("One of parameter are missing: code, nane, sign"),
     INCORRECT_NAME("Key 'name' supports size from 1 to 46 chars, latin only"),
     INCORRECT_SIGN("Key 'sign' supports size from 1 to 5 char"),
     INCORRECT_CODE("Key 'currency code' supports only latina UPPER CASE, size is 3"),
