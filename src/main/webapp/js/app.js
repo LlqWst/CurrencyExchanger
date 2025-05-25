@@ -1,7 +1,7 @@
 $(document).ready(function() {
     const host = "http://localhost:8080/CurrencyExchanger"
     //const host = "http://185.221.155.177:8080/CurrencyExchanger"
-    
+
     // Fetch the list of currencies and populate the select element
     function requestCurrencies() {
         $.ajax({
