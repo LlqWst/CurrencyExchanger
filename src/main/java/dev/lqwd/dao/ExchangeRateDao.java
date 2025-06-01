@@ -26,6 +26,7 @@ public class ExchangeRateDao {
     private final static BigDecimal SCALE_MULTIPLY = BigDecimal.valueOf(10).pow(SCALE);
 
     public Optional<ExchangeRate> getByPair(String from, String to) {
+
         String query = """
                 SELECT er.ID AS id,
                        b.ID AS base_id, b.Sign AS base_sign, b.FullName AS base_name, b.Code AS base_code,
@@ -85,6 +86,7 @@ public class ExchangeRateDao {
     }
 
     public ExchangeRate save(ExchangeRate exRate) {
+
         String query = """
                 INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate)
                 VALUES (?, ?, ?)
@@ -134,6 +136,7 @@ public class ExchangeRateDao {
     }
 
     public Optional<ExchangeRate> update(ExchangeRate exRate) {
+
         String query = """
                 UPDATE ExchangeRates
                 SET Rate = ?
@@ -167,6 +170,7 @@ public class ExchangeRateDao {
     }
 
     private static ExchangeRate getExchangeRate(ResultSet rs) throws SQLException {
+
         return new ExchangeRate(
                 rs.getLong("id"),
                 new Currency(
