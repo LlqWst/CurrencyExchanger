@@ -3,7 +3,7 @@ package dev.lqwd.service;
 import dev.lqwd.dao.CurrencyDao;
 import dev.lqwd.dao.ExchangeRateDao;
 import dev.lqwd.dto.ExchangeRateResponseDto;
-import dev.lqwd.exceptions.NotFoundException;
+import dev.lqwd.exception.NotFoundException;
 import dev.lqwd.dto.ExchangeRateRequestDto;
 import dev.lqwd.entity.Currency;
 import dev.lqwd.entity.ExchangeRate;

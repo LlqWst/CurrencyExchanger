@@ -4,7 +4,7 @@ import dev.lqwd.dao.ExchangeRateDao;
 import dev.lqwd.dto.ExchangeRequestDto;
 import dev.lqwd.dto.ExchangeResponseDto;
 import dev.lqwd.entity.ExchangeRate;
-import dev.lqwd.exceptions.BadRequestException;
+import dev.lqwd.exception.BadRequestException;
 import dev.lqwd.mapper.CurrencyMapper;
 
 import java.math.BigDecimal;

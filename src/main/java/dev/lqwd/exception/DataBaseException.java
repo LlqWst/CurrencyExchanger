@@ -1,4 +1,4 @@
-package dev.lqwd.exceptions;
+package dev.lqwd.exception;
 
 public class DataBaseException extends RuntimeException {
     public DataBaseException(String message) {

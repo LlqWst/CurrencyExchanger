@@ -10,7 +10,7 @@ import jakarta.servlet.annotation.*;
 import dev.lqwd.dto.CurrencyResponseDto;
 
 import dev.lqwd.service.CurrenciesService;
-import dev.lqwd.utility.Validator;
+import dev.lqwd.utils.Validator;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 

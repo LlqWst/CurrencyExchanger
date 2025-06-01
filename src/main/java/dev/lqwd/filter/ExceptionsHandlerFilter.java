@@ -4,7 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.ErrorResponseDto;
-import dev.lqwd.exceptions.*;
+import dev.lqwd.exception.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;

@@ -1,6 +1,6 @@
-package dev.lqwd.utility;
+package dev.lqwd.utils;
 
-import dev.lqwd.exceptions.BadRequestException;
+import dev.lqwd.exception.BadRequestException;
 
 import java.math.BigDecimal;
 

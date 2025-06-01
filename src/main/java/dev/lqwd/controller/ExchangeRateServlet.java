@@ -2,8 +2,8 @@ package dev.lqwd.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.ExchangeRateResponseDto;
-import dev.lqwd.exceptions.BadRequestException;
-import dev.lqwd.utility.Parser;
+import dev.lqwd.exception.BadRequestException;
+import dev.lqwd.utils.Parser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import dev.lqwd.dto.ExchangeRateRequestDto;
 import dev.lqwd.service.ExchangeRatesService;
-import dev.lqwd.utility.Validator;
+import dev.lqwd.utils.Validator;
 
 import java.io.IOException;
 

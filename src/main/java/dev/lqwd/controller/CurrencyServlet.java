@@ -3,7 +3,7 @@ package dev.lqwd.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.CurrencyResponseDto;
 import dev.lqwd.service.CurrenciesService;
-import dev.lqwd.utility.Validator;
+import dev.lqwd.utils.Validator;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

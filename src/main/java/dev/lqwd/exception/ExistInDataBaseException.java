@@ -1,4 +1,4 @@
-package dev.lqwd.exceptions;
+package dev.lqwd.exception;
 
 public class ExistInDataBaseException extends RuntimeException {
 

@@ -1,7 +1,7 @@
-package dev.lqwd.utility;
+package dev.lqwd.utils;
 
 import dev.lqwd.dto.CurrencyRequestDto;
-import dev.lqwd.exceptions.BadRequestException;
+import dev.lqwd.exception.BadRequestException;
 
 import java.util.regex.Pattern;
 

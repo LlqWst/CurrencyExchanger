@@ -3,8 +3,8 @@ package dev.lqwd.dao;
 import dev.lqwd.config.CurrenciesListener;
 import dev.lqwd.entity.Currency;
 import dev.lqwd.entity.ExchangeRate;
-import dev.lqwd.exceptions.DataBaseException;
-import dev.lqwd.exceptions.ExistInDataBaseException;
+import dev.lqwd.exception.DataBaseException;
+import dev.lqwd.exception.ExistInDataBaseException;
 import org.sqlite.SQLiteErrorCode;
 import org.sqlite.SQLiteException;
 
