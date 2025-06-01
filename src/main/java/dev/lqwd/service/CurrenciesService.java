@@ -18,11 +18,13 @@ public class CurrenciesService {
     private final CurrencyMapper currencyMapper;
 
     public CurrenciesService() {
+
         this.currencyDao = new CurrencyDao();
         this.currencyMapper = CurrencyMapper.INSTANCE;
     }
 
     public CurrencyResponseDto getByCode(String code) {
+
         Currency currencyDao = this.currencyDao.getByCode(code)
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_EXIST_CURRENCY_CODE, code)));
 
@@ -30,6 +32,7 @@ public class CurrenciesService {
     }
 
     public CurrencyResponseDto get(Long id) {
+
         Currency currencyDao = this.currencyDao.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_EXIST_CURRENCY_ID, id)));
 
@@ -37,6 +40,7 @@ public class CurrenciesService {
     }
 
     public List<CurrencyResponseDto> getAll() {
+
         List<CurrencyResponseDto> currenciesDto = new ArrayList<>();
         List<Currency> currencies = currencyDao.getAll();
 
@@ -49,6 +53,7 @@ public class CurrenciesService {
     }
 
     public CurrencyResponseDto save(CurrencyRequestDto currencyRequestDto) {
+
         Currency currency = currencyMapper.toCurrency(currencyRequestDto);
         Currency currencyDao = this.currencyDao.save(currency);
 

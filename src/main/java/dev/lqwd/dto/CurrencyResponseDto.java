@@ -13,5 +13,4 @@ public class CurrencyResponseDto {
     private String name;
     private String code;
     private String sign;
-
 }

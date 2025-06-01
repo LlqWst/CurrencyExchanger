@@ -14,6 +14,5 @@ public class ExchangeRequestDto {
     private String baseCurrencyCode;
     private String targetCurrencyCode;
     private BigDecimal amount;
-
 }
 

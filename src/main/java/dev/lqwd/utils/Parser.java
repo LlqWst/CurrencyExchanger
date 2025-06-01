@@ -15,7 +15,6 @@ public class Parser {
         BigDecimal min = new BigDecimal("0.000001");
         BigDecimal max = new BigDecimal("999999.999999");
         return parsValue(rate, min, max, "rate");
-
     }
 
     public static BigDecimal parsAmount(String amount) {
@@ -27,6 +26,7 @@ public class Parser {
     }
 
     private static BigDecimal parsValue(String value, BigDecimal min, BigDecimal max, String type) {
+
         value = value.replace(",", ".");
 
         int dotIndex = value.indexOf('.');
@@ -35,10 +35,12 @@ public class Parser {
         }
 
         try {
+
             BigDecimal result = new BigDecimal(value).stripTrailingZeros();
             if (result.compareTo(min) < 0 || result.compareTo(max) > 0) {
                 throw new BadRequestException(String.format(INCORRECT_NUMBER, type, min, max));
             }
+
             return result;
         } catch (Exception e) {
             throw new BadRequestException(String.format(INCORRECT_NUMBER, type, min, max));

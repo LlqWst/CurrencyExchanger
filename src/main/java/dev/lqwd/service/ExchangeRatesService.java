@@ -21,6 +21,7 @@ public class ExchangeRatesService {
     private final ExchangeRateMapper exchangeRateMapper;
 
     public ExchangeRatesService() {
+
         this.exchangeRateDao = new ExchangeRateDao();
         this.exchangeRateMapper = ExchangeRateMapper.INSTANCE;
         this.currencyDao = new CurrencyDao();
@@ -47,6 +48,7 @@ public class ExchangeRatesService {
     }
 
     public ExchangeRateResponseDto save(ExchangeRateRequestDto requestDto) {
+
         ExchangeRate exRateToDao = getExchangeRate(requestDto);
 
         ExchangeRate exRateFromDao = exchangeRateDao.save(exRateToDao);
@@ -55,6 +57,7 @@ public class ExchangeRatesService {
     }
 
     public ExchangeRateResponseDto update(ExchangeRateRequestDto requestDto) {
+
         ExchangeRate exRate = getExchangeRate(requestDto);
 
         ExchangeRate exRateEntity = exchangeRateDao.update(exRate)
@@ -64,6 +67,7 @@ public class ExchangeRatesService {
     }
 
     private ExchangeRate getExchangeRate(ExchangeRateRequestDto requestDto) {
+
         return new ExchangeRate(
                 codeToCurrency(requestDto.getBaseCurrencyCode()),
                 codeToCurrency(requestDto.getTargetCurrencyCode()),
@@ -72,6 +76,7 @@ public class ExchangeRatesService {
     }
 
     private Currency codeToCurrency(String code) {
+
         return currencyDao.getByCode(code)
                 .orElseThrow(() -> new NotFoundException(String.format(NO_CURRENCY_CODE_EXIST, code)));
     }

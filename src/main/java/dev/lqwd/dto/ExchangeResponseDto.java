@@ -17,5 +17,4 @@ public class ExchangeResponseDto {
     private BigDecimal rate;
     private BigDecimal amount;
     private BigDecimal convertedAmount;
-
 }

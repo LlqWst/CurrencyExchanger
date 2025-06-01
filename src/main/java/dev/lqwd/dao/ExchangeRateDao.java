@@ -36,20 +36,19 @@ public class ExchangeRateDao {
                 INNER JOIN Currencies AS t ON er.TargetCurrencyId = t.ID AND t.Code = ?
                 """;
 
-        try (Connection connection = CurrenciesListener.getConnection()) {
+        try (Connection connection = CurrenciesListener.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
 
-            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, from);
             statement.setString(2, to);
 
-            try (ResultSet rs = statement.executeQuery()) {
+            ResultSet rs = statement.executeQuery();
 
-                if (!rs.next()) {
-                    return Optional.empty();
-                }
-
-                return Optional.of(getExchangeRate(rs));
+            if (!rs.next()) {
+                return Optional.empty();
             }
+
+            return Optional.of(getExchangeRate(rs));
 
         } catch (SQLException e) {
             throw new DataBaseException(DB_ERROR_READ);
@@ -68,18 +67,17 @@ public class ExchangeRateDao {
                 INNER JOIN Currencies AS t ON er.TargetCurrencyId = t.ID
                 """;
 
-        try (Connection connection = CurrenciesListener.getConnection()) {
-            Statement statement = connection.createStatement();
+        try (Connection connection = CurrenciesListener.getConnection();
+             Statement statement = connection.createStatement()) {
 
-            try (ResultSet rs = statement.executeQuery(query)) {
+            ResultSet rs = statement.executeQuery(query);
 
-                List<ExchangeRate> exchangeRates = new ArrayList<>();
-                while (rs.next()) {
-                    exchangeRates.add(getExchangeRate(rs));
-                }
-
-                return exchangeRates;
+            List<ExchangeRate> exchangeRates = new ArrayList<>();
+            while (rs.next()) {
+                exchangeRates.add(getExchangeRate(rs));
             }
+
+            return exchangeRates;
 
         } catch (SQLException e) {
             throw new DataBaseException(DB_ERROR_READ);
@@ -88,54 +86,8 @@ public class ExchangeRateDao {
 
     public ExchangeRate save(ExchangeRate exRate) {
         String query = """
-                INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?) RETURNING ID
-                """;
-
-        long base = exRate.getBaseCurrency().getId();
-        long target = exRate.getTargetCurrency().getId();
-        BigDecimal rate = exRate.getRate().multiply(SCALE_MULTIPLY);
-
-        try (Connection connection = CurrenciesListener.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-
-                statement.setLong(1, base);
-                statement.setLong(2, target);
-                statement.setBigDecimal(3, rate);
-                ResultSet rs = statement.executeQuery();
-
-                if (!rs.next()) {
-                    throw new DataBaseException(
-                            String.format(DB_ERROR_SAVE,
-                                    exRate.getBaseCurrency().getCode(), exRate.getTargetCurrency().getCode())
-                    );
-                }
-
-                exRate.setId(rs.getLong("id"));
-                return exRate;
-
-            }
-        } catch (SQLException e) {
-            if (e instanceof SQLiteException exception) {
-                if (exception.getResultCode().code == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE.code) {
-                    throw new ExistInDataBaseException(
-                            String.format(DB_ERROR_ALREADY_EXIST,
-                                    exRate.getBaseCurrency().getCode(), exRate.getTargetCurrency().getCode())
-                    );
-                }
-            }
-            throw new DataBaseException(
-                    String.format(DB_ERROR_SAVE,
-                            exRate.getBaseCurrency().getCode(), exRate.getTargetCurrency().getCode())
-            );
-        }
-    }
-
-    public Optional<ExchangeRate> update(ExchangeRate exRate) {
-        String query = """
-                UPDATE ExchangeRates
-                SET Rate = ?
-                WHERE BaseCurrencyId = ?
-                AND TargetCurrencyId = ?
+                INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate)
+                VALUES (?, ?, ?)
                 RETURNING ID
                 """;
 
@@ -145,9 +97,61 @@ public class ExchangeRateDao {
 
         try (Connection connection = CurrenciesListener.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setLong(1, base);
+            statement.setLong(2, target);
+            statement.setBigDecimal(3, rate);
+
+            ResultSet rs = statement.executeQuery();
+
+            if (!rs.next()) {
+                throw new DataBaseException(
+                        String.format(DB_ERROR_SAVE,
+                                exRate.getBaseCurrency().getCode(),
+                                exRate.getTargetCurrency().getCode())
+                );
+            }
+
+            exRate.setId(rs.getLong("id"));
+            return exRate;
+
+        } catch (SQLException e) {
+            if (e instanceof SQLiteException exception) {
+                if (exception.getResultCode().code == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE.code) {
+                    throw new ExistInDataBaseException(
+                            String.format(DB_ERROR_ALREADY_EXIST,
+                                    exRate.getBaseCurrency().getCode(),
+                                    exRate.getTargetCurrency().getCode())
+                    );
+                }
+            }
+            throw new DataBaseException(
+                    String.format(DB_ERROR_SAVE,
+                            exRate.getBaseCurrency().getCode(),
+                            exRate.getTargetCurrency().getCode())
+            );
+        }
+    }
+
+    public Optional<ExchangeRate> update(ExchangeRate exRate) {
+        String query = """
+                UPDATE ExchangeRates
+                SET Rate = ?
+                WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?
+                RETURNING ID
+                """;
+
+        long base = exRate.getBaseCurrency().getId();
+        long target = exRate.getTargetCurrency().getId();
+        BigDecimal rate = exRate.getRate().multiply(SCALE_MULTIPLY);
+
+        try (Connection connection = CurrenciesListener.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
             statement.setBigDecimal(1, rate);
             statement.setLong(2, base);
             statement.setLong(3, target);
+
             ResultSet rs = statement.executeQuery();
 
             if (!rs.next()) {
@@ -158,7 +162,7 @@ public class ExchangeRateDao {
             return Optional.of(exRate);
 
         } catch (SQLException e) {
-            throw new DataBaseException(DB_ERROR_UPDATE );
+            throw new DataBaseException(DB_ERROR_UPDATE);
         }
     }
 

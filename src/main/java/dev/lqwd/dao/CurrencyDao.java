@@ -19,6 +19,7 @@ public class CurrencyDao {
     private final static String DB_ERROR_ALREADY_EXIST = "Currency with code '%s' already exist";
 
     public Optional<Currency> getByCode(String code) {
+
         String query = """
                 SELECT *
                 FROM Currencies
@@ -29,6 +30,7 @@ public class CurrencyDao {
              PreparedStatement statement = connection.prepareStatement(query)) {
 
             statement.setString(1, code);
+
             ResultSet rs = statement.executeQuery();
 
             if (!rs.next()) {
@@ -36,12 +38,14 @@ public class CurrencyDao {
             }
 
             return Optional.of(getCurrency(rs));
+
         } catch (SQLException e) {
-            throw new DataBaseException(DB_ERROR_READ );
+            throw new DataBaseException(DB_ERROR_READ);
         }
     }
 
     public Optional<Currency> getById(Long id) {
+
         String query = """
                 SELECT *
                 FROM Currencies
@@ -50,42 +54,45 @@ public class CurrencyDao {
 
         try (Connection connection = CurrenciesListener.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
+
             statement.setLong(1, id);
 
-            try (ResultSet rs = statement.executeQuery()) {
+            ResultSet rs = statement.executeQuery();
 
-                if (!rs.next()) {
-                    return Optional.empty();
-                }
-
-                return Optional.of(getCurrency(rs));
+            if (!rs.next()) {
+                return Optional.empty();
             }
+
+            return Optional.of(getCurrency(rs));
+
         } catch (SQLException e) {
             throw new DataBaseException(DB_ERROR_READ);
         }
     }
 
     public List<Currency> getAll() {
+
         String query = "SELECT * FROM Currencies";
 
         try (Connection connection = CurrenciesListener.getConnection();
              Statement statement = connection.createStatement()) {
-            try (ResultSet rs = statement.executeQuery(query)) {
 
-                List<Currency> currencies = new ArrayList<>();
+            ResultSet rs = statement.executeQuery(query);
 
-                while (rs.next()) {
-                    currencies.add(getCurrency(rs));
-                }
-
-                return currencies;
+            List<Currency> currencies = new ArrayList<>();
+            while (rs.next()) {
+                currencies.add(getCurrency(rs));
             }
+
+            return currencies;
+
         } catch (SQLException e) {
             throw new DataBaseException(DB_ERROR_READ);
         }
     }
 
     public Currency save(Currency currency) {
+
         String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?) RETURNING *";
 
         try (Connection connection = CurrenciesListener.getConnection();
@@ -114,6 +121,7 @@ public class CurrencyDao {
     }
 
     private static Currency getCurrency(ResultSet rs) throws SQLException {
+
         return new Currency(
                 rs.getLong("ID"),
                 rs.getString("FullName"),
