@@ -7,7 +7,8 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface ExchangeRateMapper {
+
     ExchangeRateMapper INSTANCE = Mappers.getMapper(ExchangeRateMapper.class);
 
-    ExchangeRateResponseDto toExchangeRateResponseDto(ExchangeRate exRate);
+    ExchangeRateResponseDto toResponseDto(ExchangeRate exRate);
 }

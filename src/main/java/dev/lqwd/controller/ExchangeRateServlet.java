@@ -3,8 +3,8 @@ package dev.lqwd.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.ExchangeRateResponseDto;
 import dev.lqwd.exceptions.BadRequestException;
-import dev.lqwd.exceptions.MethodNotAllowedException;
 import dev.lqwd.utility.Parser;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,24 +18,22 @@ import java.io.IOException;
 import static jakarta.servlet.http.HttpServletResponse.*;
 
 @WebServlet("/exchangeRate/*")
-public class ExchangeRateServlet extends HttpServlet{
+public class ExchangeRateServlet extends HttpServlet {
 
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if(req.getMethod().equalsIgnoreCase("PATCH")){
+            this.doPatch(req, resp);
+        }
+        super.service(req, resp);
+    }
+
+    private static final String INCORRECT_PAIR = "Currency pair should be equals 6 letters";
     private ExchangeRatesService exchangeRateService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
-        if ("GET".equalsIgnoreCase(req.getMethod())) {
-            doGet(req, resp);
-        } else if ("PATCH".equalsIgnoreCase(req.getMethod())) {
-            doPatch(req, resp);
-        }
-        throw new MethodNotAllowedException("Only GET and PATCH methods are allowed");
-    }
-
-    @Override
-    public void init(){
+    public void init() {
 
         this.exchangeRateService = new ExchangeRatesService();
     }
@@ -45,8 +43,8 @@ public class ExchangeRateServlet extends HttpServlet{
 
         String pair = req.getPathInfo().replaceFirst("/", "");
 
-        if(pair.length() != 6){
-            throw new BadRequestException("Currency pair should be equals 6 letters");
+        if (pair.length() != 6) {
+            throw new BadRequestException(INCORRECT_PAIR);
         }
 
         String from = pair.substring(0, 3);
@@ -59,12 +57,12 @@ public class ExchangeRateServlet extends HttpServlet{
     }
 
     @Override
-    protected void doPatch (HttpServletRequest req, HttpServletResponse res) throws IOException {
+    protected void doPatch(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
         String pair = req.getPathInfo().replaceFirst("/", "");
 
-        if(pair.length() != 6){
-            throw new BadRequestException("Currency pair should be equals 6 letters");
+        if (pair.length() != 6) {
+            throw new BadRequestException(INCORRECT_PAIR);
         }
 
         String from = pair.substring(0, 3);
@@ -76,9 +74,9 @@ public class ExchangeRateServlet extends HttpServlet{
                 .replace("%2C", ".");
 
         Validator.validate(from, to);
-        Validator.validateParameter(rate);
+        Validator.validateParameter(rate, "rate");
 
-        ExchangeRateRequestDto requestDto = new ExchangeRateRequestDto (
+        ExchangeRateRequestDto requestDto = new ExchangeRateRequestDto(
                 from,
                 to,
                 Parser.parsRate(rate)

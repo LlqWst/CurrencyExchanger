@@ -14,12 +14,16 @@ import java.util.Optional;
 
 public class CurrencyDao {
 
+    private final static String DB_ERROR_READ = "Failed to read currencies from the database";
+    private final static String DB_ERROR_SAVE = "Failed to save currency with code '%s' to the database";
+    private final static String DB_ERROR_ALREADY_EXIST = "Currency with code '%s' already exist";
+
     public Optional<Currency> getByCode(String code) {
         String query = """
-                    SELECT *
-                    FROM Currencies
-                    WHERE Code = ?
-                    """;
+                SELECT *
+                FROM Currencies
+                WHERE Code = ?
+                """;
 
         try (Connection connection = CurrenciesListener.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -32,17 +36,17 @@ public class CurrencyDao {
             }
 
             return Optional.of(getCurrency(rs));
-        } catch (SQLException e){
-            throw new DataBaseException("Failed to read currencies from the database");
+        } catch (SQLException e) {
+            throw new DataBaseException(DB_ERROR_READ );
         }
     }
 
-    public Optional <Currency> getById(Long id) {
+    public Optional<Currency> getById(Long id) {
         String query = """
-                    SELECT *
-                    FROM Currencies
-                    WHERE ID = ?
-                    """;
+                SELECT *
+                FROM Currencies
+                WHERE ID = ?
+                """;
 
         try (Connection connection = CurrenciesListener.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -56,8 +60,8 @@ public class CurrencyDao {
 
                 return Optional.of(getCurrency(rs));
             }
-        } catch (SQLException e){
-            throw new DataBaseException("Failed to read currencies from the database");
+        } catch (SQLException e) {
+            throw new DataBaseException(DB_ERROR_READ);
         }
     }
 
@@ -66,7 +70,7 @@ public class CurrencyDao {
 
         try (Connection connection = CurrenciesListener.getConnection();
              Statement statement = connection.createStatement()) {
-            try(ResultSet rs = statement.executeQuery(query)) {
+            try (ResultSet rs = statement.executeQuery(query)) {
 
                 List<Currency> currencies = new ArrayList<>();
 
@@ -76,8 +80,8 @@ public class CurrencyDao {
 
                 return currencies;
             }
-        } catch (SQLException e){
-            throw new DataBaseException("Failed to read currencies from the database");
+        } catch (SQLException e) {
+            throw new DataBaseException(DB_ERROR_READ);
         }
     }
 
@@ -94,7 +98,7 @@ public class CurrencyDao {
             ResultSet rs = statement.executeQuery();
 
             if (!rs.next()) {
-                throw new DataBaseException("Error while saving Currency");
+                throw new DataBaseException(DB_ERROR_SAVE);
             }
 
             return getCurrency(rs);
@@ -102,10 +106,10 @@ public class CurrencyDao {
         } catch (SQLException e) {
             if (e instanceof SQLiteException exception) {
                 if (exception.getResultCode().code == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE.code) {
-                    throw new ExistInDataBaseException("Currency with code '" + currency.getCode() + "' already exists");
+                    throw new ExistInDataBaseException(String.format(DB_ERROR_ALREADY_EXIST, currency.getCode()));
                 }
             }
-            throw new ExistInDataBaseException("Failed to save currency with code '" + currency.getCode() + "' to the database");
+            throw new ExistInDataBaseException(String.format(DB_ERROR_SAVE, currency.getCode()));
         }
     }
 

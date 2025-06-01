@@ -2,7 +2,6 @@ package dev.lqwd.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.CurrencyResponseDto;
-import dev.lqwd.exceptions.MethodNotAllowedException;
 import dev.lqwd.service.CurrenciesService;
 import dev.lqwd.utility.Validator;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,22 +14,13 @@ import java.io.IOException;
 import static jakarta.servlet.http.HttpServletResponse.*;
 
 @WebServlet("/currency/*")
-public class CurrencyServlet extends HttpServlet{
+public class CurrencyServlet extends HttpServlet {
 
     private CurrenciesService currenciesService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse res) throws IOException {
-
-        if ("GET".equalsIgnoreCase(req.getMethod())) {
-            doGet(req, res);
-        }
-        throw new MethodNotAllowedException("Only GET method is allowed");
-    }
-
-    @Override
-    public void init(){
+    public void init() {
 
         this.currenciesService = new CurrenciesService();
     }

@@ -5,7 +5,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Currency{
+public class Currency {
 
     private Long id;
     private String name;

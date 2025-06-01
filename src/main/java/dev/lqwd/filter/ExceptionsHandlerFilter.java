@@ -12,7 +12,7 @@ import jakarta.servlet.annotation.*;
 import static jakarta.servlet.http.HttpServletResponse.*;
 
 @WebFilter("/*")
-public class ExceptionsHandlerFilter extends  HttpFilter {
+public class ExceptionsHandlerFilter extends HttpFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -24,20 +24,18 @@ public class ExceptionsHandlerFilter extends  HttpFilter {
 
         try {
             chain.doFilter(httpReq, httpRes);
-        } catch (BadRequestException e){
-            writeError(httpRes, SC_NOT_FOUND, e);
-        } catch (NotFoundException e){
+        } catch (BadRequestException e) {
             writeError(httpRes, SC_BAD_REQUEST, e);
-        } catch (ExistInDataBaseException e){
+        } catch (NotFoundException e) {
+            writeError(httpRes, SC_NOT_FOUND, e);
+        } catch (ExistInDataBaseException e) {
             writeError(httpRes, SC_CONFLICT, e);
-        } catch (MethodNotAllowedException e){
-            writeError(httpRes, SC_METHOD_NOT_ALLOWED, e);
-        } catch (DataBaseException e){
+        } catch (DataBaseException e) {
             writeError(httpRes, SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 
-    private void writeError(HttpServletResponse httpRes, int status, Exception e) throws IOException{
+    private void writeError(HttpServletResponse httpRes, int status, Exception e) throws IOException {
         httpRes.setStatus(status);
         ErrorResponseDto errorDto = new ErrorResponseDto(e.getMessage());
         objectMapper.writeValue(httpRes.getWriter(), errorDto);

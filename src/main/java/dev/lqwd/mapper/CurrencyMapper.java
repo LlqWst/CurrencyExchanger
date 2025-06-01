@@ -8,9 +8,10 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface CurrencyMapper {
+
     CurrencyMapper INSTANCE = Mappers.getMapper(CurrencyMapper.class);
 
-    CurrencyResponseDto toCurrencyResponseDto(Currency currency);
-    Currency toCurrency(CurrencyRequestDto currencyRequestDto);
+    CurrencyResponseDto toResponseDto(Currency currency);
 
+    Currency toCurrency(CurrencyRequestDto currencyRequestDto);
 }
