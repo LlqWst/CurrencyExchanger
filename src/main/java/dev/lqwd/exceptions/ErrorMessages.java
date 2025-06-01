@@ -8,7 +8,7 @@ public enum ErrorMessages {
     EXIST_PAIR("Pair already exist"),
     INTERNAL_ERROR("Data Base is busy"),
     MISSING_CURRENCY("Currency missing in URL"),
-    MISSING_PARAMETERS("One of form parameter are missing."),
+    MISSING_PARAMETERS("One of form parameter are missing:"),
     INCORRECT_NAME("Form 'name' supports size from 1 to 46 chars, latin only."),
     INCORRECT_SIGN("Form 'sign' supports size from 1 to 5 char."),
     INCORRECT_CODE("Form 'currency code' supports only latina UPPER CASE, size is 3."),

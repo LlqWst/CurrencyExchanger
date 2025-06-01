@@ -1,83 +1,99 @@
 package dev.lqwd.service;
 
-import dev.lqwd.dto.CurrencyDto;
-import dev.lqwd.dto.ExchangeDto;
-import dev.lqwd.dto.ExchangePairDto;
-import dev.lqwd.exceptions.CurrenciesExceptions;
-import dev.lqwd.exceptions.custom_exceptions.BadRequestException;
-import dev.lqwd.exceptions.custom_exceptions.DataBaseException;
-import dev.lqwd.validator.Validator;
+import dev.lqwd.dao.ExchangeRateDao;
+import dev.lqwd.dto.ExchangeRequestDto;
+import dev.lqwd.dto.ExchangeResponseDto;
+import dev.lqwd.entity.ExchangeRate;
+import dev.lqwd.exceptions.BadRequestException;
+import dev.lqwd.mapper.CurrencyMapper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 import static dev.lqwd.exceptions.ErrorMessages.INCORRECT_CONVERSION_INPUT;
-import static dev.lqwd.exceptions.ErrorMessages.INTERNAL_ERROR;
 
 public class ExchangeService {
 
-    private final static String USD_CODE = "USD";
-    private final static int SCALE = Validator.SCALE;
+    private final static String USD = "USD";
+    private final static int SCALE = 6;
     private final static int VIEW_SCALE = 2;
 
-    private final ExchangeRatesService exchangeRatesService;
-    private final CurrenciesService currenciesService;
+    private final CurrencyMapper currencyMapper = CurrencyMapper.INSTANCE;
+    private final ExchangeRateDao exchangeRateDao;
 
     public ExchangeService() {
-        this.exchangeRatesService = new ExchangeRatesService();
-        this.currenciesService = new CurrenciesService();
+        this.exchangeRateDao = new ExchangeRateDao();
     }
 
-    public ExchangeDto get(ExchangePairDto exPairDto) {
-        try {
-            String baseCode = exPairDto.getBaseCurrencyCode();
-            String targetCode = exPairDto.getTargetCurrencyCode();
-            BigDecimal amount = exPairDto.getAmount();
+    public ExchangeResponseDto get(ExchangeRequestDto requestDto) {
+        String baseCode = requestDto.getBaseCurrencyCode();
+        String targetCode = requestDto.getTargetCurrencyCode();
+        BigDecimal amount = requestDto.getAmount();
 
-            CurrencyDto baseCurrencyDto = currenciesService.getByCode(baseCode);
-            CurrencyDto targetCurrencyDto = currenciesService.getByCode(targetCode);
+        ExchangeRate exchangeRate = getRateBaseOnPair(baseCode, targetCode)
+                .orElseThrow(() -> new BadRequestException(INCORRECT_CONVERSION_INPUT.getMessage()));
 
-            BigDecimal rate = getRateBaseOnPair(baseCode, targetCode);
-            BigDecimal convertedAmount = amount.multiply(rate)
-                    .setScale(VIEW_SCALE, RoundingMode.HALF_UP);
-            return new ExchangeDto(baseCurrencyDto,
-                    targetCurrencyDto,
-                    rate.setScale(VIEW_SCALE, RoundingMode.HALF_UP),
-                    amount.setScale(VIEW_SCALE, RoundingMode.HALF_UP),
-                    convertedAmount
-            );
-        } catch (CurrenciesExceptions e) {
-            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
-        } catch (Exception e){
-            throw new DataBaseException(INTERNAL_ERROR.getMessage());
-        }
+        BigDecimal convertedAmount = amount.multiply(exchangeRate.getRate())
+                .setScale(VIEW_SCALE, RoundingMode.HALF_EVEN);
+
+        return new ExchangeResponseDto(
+                currencyMapper.toCurrencyResponseDto(exchangeRate.getBaseCurrency()),
+                currencyMapper.toCurrencyResponseDto(exchangeRate.getTargetCurrency()),
+                exchangeRate.getRate().setScale(VIEW_SCALE, RoundingMode.HALF_EVEN),
+                amount.setScale(VIEW_SCALE, RoundingMode.HALF_EVEN),
+                convertedAmount
+        );
     }
 
-    private BigDecimal getRateBaseOnPair(String baseCode, String targetCode){
+    private Optional <ExchangeRate> getRateBaseOnPair(String baseCode, String targetCode){
 
-        String baseToTarget = baseCode + targetCode;
-        String targetToBase = targetCode + baseCode;
-        String usdToBase = USD_CODE + baseCode;
-        String usdToTarget = USD_CODE + targetCode;
+        Optional <ExchangeRate> exchangeRate = exchangeRateDao.getByPair(baseCode, targetCode);
 
-        try {
-            return exchangeRatesService.get(baseToTarget)
-                    .getRate();
-        } catch (Exception ignored) {}
-
-        try {
-            BigDecimal divider = new BigDecimal("1");
-            BigDecimal rate = exchangeRatesService.get(targetToBase).getRate();
-            return divider.divide(rate, SCALE, RoundingMode.HALF_UP);
-        } catch (Exception ignored) {}
-
-        try {
-            BigDecimal UsdToBaseRate = exchangeRatesService.get(usdToBase).getRate();
-            BigDecimal UsdToTargetRate = exchangeRatesService.get(usdToTarget).getRate();
-            return UsdToTargetRate.divide(UsdToBaseRate, SCALE, RoundingMode.HALF_UP);
-        } catch (Exception e) {
-            throw new BadRequestException(INCORRECT_CONVERSION_INPUT.getMessage());
+        if(exchangeRate.isEmpty()){
+            exchangeRate = getIndirectRate(baseCode, targetCode);
         }
+
+        if(exchangeRate.isEmpty()){
+            exchangeRate = getCrossRate(baseCode, targetCode);
+        }
+
+        return exchangeRate;
+    }
+
+    private Optional <ExchangeRate> getIndirectRate(String baseCode, String targetCode){
+        Optional <ExchangeRate> exchangeRate = exchangeRateDao.getByPair(targetCode, baseCode);
+
+        if(exchangeRate.isEmpty()){
+            return Optional.empty();
+        }
+
+        BigDecimal indirectRate = exchangeRate.get().getRate();
+        BigDecimal rate = BigDecimal.ONE.divide(indirectRate, SCALE, RoundingMode.HALF_EVEN);
+
+        return Optional.of(new ExchangeRate (
+                exchangeRate.get().getTargetCurrency(),
+                exchangeRate.get().getBaseCurrency(),
+                rate
+        ));
+    }
+
+    private Optional<ExchangeRate> getCrossRate(String baseCode, String targetCode) {
+        Optional <ExchangeRate> UsdToBaseRate = exchangeRateDao.getByPair(USD, targetCode);
+        Optional <ExchangeRate> UsdToTargetRate = exchangeRateDao.getByPair(USD, baseCode);
+
+        if(UsdToBaseRate.isEmpty() || UsdToTargetRate.isEmpty()) {
+            return Optional.empty();
+        }
+
+        BigDecimal rate = UsdToTargetRate.get().getRate()
+                .divide(UsdToBaseRate.get().getRate(), SCALE, RoundingMode.HALF_EVEN);
+
+        return Optional.of(new ExchangeRate(
+                UsdToBaseRate.get().getTargetCurrency(),
+                UsdToTargetRate.get().getTargetCurrency(),
+                rate
+        ));
     }
 
 }

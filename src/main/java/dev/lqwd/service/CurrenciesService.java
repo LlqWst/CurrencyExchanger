@@ -1,73 +1,59 @@
 package dev.lqwd.service;
 
-import dev.lqwd.dao.CurrenciesDao;
-import dev.lqwd.dto.CurrencyDto;
-import dev.lqwd.mapper.CurrencyAndRateMapper;
+import dev.lqwd.dao.CurrencyDao;
+import dev.lqwd.dto.CurrencyResponseDto;
+import dev.lqwd.dto.CurrencyRequestDto;
+import dev.lqwd.exceptions.NotFoundException;
+import dev.lqwd.mapper.CurrencyMapper;
 import dev.lqwd.entity.Currency;
-import dev.lqwd.exceptions.CurrenciesExceptions;
-import dev.lqwd.exceptions.custom_exceptions.DataBaseException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.lqwd.exceptions.ErrorMessages.*;
+import static dev.lqwd.exceptions.ErrorMessages.NOT_EXIST_CURRENCY;
+
 
 public class CurrenciesService {
 
-    private final CurrenciesDao currenciesDao;
-    private final CurrencyAndRateMapper currencyMapper;
+    private final CurrencyDao currencyDao;
+    private final CurrencyMapper currencyMapper;
 
     public CurrenciesService()  {
-        this.currenciesDao = new CurrenciesDao();
-        this.currencyMapper = CurrencyAndRateMapper.INSTANCE;
+        this.currencyDao = new CurrencyDao();
+        this.currencyMapper = CurrencyMapper.INSTANCE;
     }
 
-    public CurrencyDto getByCode(String code) {
-        try {
-            Currency currencyDao = currenciesDao.getByCode(code);
-            return currencyMapper.toCurrencyDto(currencyDao);
-        } catch (CurrenciesExceptions e) {
-            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
-        } catch (Exception e){
-            throw new DataBaseException(INTERNAL_ERROR.getMessage());
-        }
+    public CurrencyResponseDto getByCode(String code) {
+        Currency currencyDao = this.currencyDao.getByCode(code)
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_CURRENCY.getMessage() + code));
+
+        return currencyMapper.toCurrencyResponseDto(currencyDao);
     }
 
-    public CurrencyDto get(Integer id) {
-        try {
-            Currency currencyDao = currenciesDao.getById(id);
-            return currencyMapper.toCurrencyDto(currencyDao);
-        } catch (CurrenciesExceptions e) {
-            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
-        } catch (Exception e){
-            throw new DataBaseException(INTERNAL_ERROR.getMessage());
-        }
+    public CurrencyResponseDto get(Long id) {
+        Currency currencyDao = this.currencyDao.getById(id)
+                .orElseThrow(() -> new NotFoundException(NOT_EXIST_CURRENCY.getMessage() + id));
+
+        return currencyMapper.toCurrencyResponseDto(currencyDao);
     }
 
-    public List<CurrencyDto> getAll() {
-        try {
-            List<CurrencyDto> currenciesDto = new ArrayList<>();
-            List<Currency> currencies = currenciesDao.getAll();
-            for(Currency currency : currencies){
-                CurrencyDto currencyDto = currencyMapper.toCurrencyDto(currency);
-                currenciesDto.add(currencyDto);
-            }
-            return currenciesDto;
-        } catch (Exception e) {
-            throw new DataBaseException(INTERNAL_ERROR.getMessage());
+    public List<CurrencyResponseDto> getAll() {
+        List<CurrencyResponseDto> currenciesDto = new ArrayList<>();
+        List<Currency> currencies = currencyDao.getAll();
+
+        for(Currency currency : currencies){
+            CurrencyResponseDto currencyResponseDto = currencyMapper.toCurrencyResponseDto(currency);
+            currenciesDto.add(currencyResponseDto);
         }
+
+        return currenciesDto;
     }
 
-    public CurrencyDto save(CurrencyDto currencyDto){
-        try {
-            Currency currency = currencyMapper.toCurrency(currencyDto);
-            Currency currencyDao = currenciesDao.save(currency);
-            return currencyMapper.toCurrencyDto(currencyDao);
-        } catch (CurrenciesExceptions e) {
-            throw new CurrenciesExceptions (e.getStatusCode(), e.getMessage());
-        } catch (Exception e){
-            throw new DataBaseException(INTERNAL_ERROR.getMessage());
-        }
+    public CurrencyResponseDto save(CurrencyRequestDto currencyRequestDto){
+        Currency currency = currencyMapper.toCurrency(currencyRequestDto);
+        Currency currencyDao = this.currencyDao.save(currency);
+
+        return currencyMapper.toCurrencyResponseDto(currencyDao);
     }
 
 }
