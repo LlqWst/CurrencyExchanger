@@ -15,7 +15,14 @@ public class Validator {
     private static final String INCORRECT_NAME = "Form 'name' supports size from 1 to 46 chars, latin only.";
     private static final String INCORRECT_CODE = "Form 'currency code' supports only latina UPPER CASE, size is 3.";
     private static final String MISSING_PARAMETERS = "One of form parameter are missing: %s";
+    private static final String INCORRECT_PAIR = "Currency pair should be equals 6 letters";
     private static final String SPACE = " ";
+
+    public static void validateCurrencyPairLength(String pair) {
+        if (pair.length() != 6) {
+            throw new BadRequestException(INCORRECT_PAIR);
+        }
+    }
 
     public static void validateParameter(String param, String paramName) {
         if (param == null || param.isEmpty()) {

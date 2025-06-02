@@ -10,5 +10,5 @@ public interface ExchangeRateMapper {
 
     ExchangeRateMapper INSTANCE = Mappers.getMapper(ExchangeRateMapper.class);
 
-    ExchangeRateResponseDto toResponseDto(ExchangeRate exRate);
+    ExchangeRateResponseDto toExchangeResponseDto(ExchangeRate exRate);
 }

@@ -1,10 +1,8 @@
 package dev.lqwd.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.ExchangeRequestDto;
 import dev.lqwd.utils.Parser;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import dev.lqwd.dto.ExchangeResponseDto;
@@ -16,15 +14,10 @@ import java.io.IOException;
 import static jakarta.servlet.http.HttpServletResponse.*;
 
 @WebServlet("/exchange")
-public class ExchangeServlet extends HttpServlet {
+public class ExchangeServlet extends BasicServlet {
 
-    private ExchangeService exchangeService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ExchangeService exchangeService = new ExchangeService();
 
-    @Override
-    public void init() {
-        this.exchangeService = new ExchangeService();
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
@@ -41,10 +34,9 @@ public class ExchangeServlet extends HttpServlet {
                 to,
                 Parser.parsAmount(amount)
         );
-        ExchangeResponseDto responseDto = exchangeService.get(requestDto);
+        ExchangeResponseDto exchangeResponseDto = exchangeService.get(requestDto);
 
-        res.setStatus(SC_OK);
-        objectMapper.writeValue(res.getWriter(), responseDto);
+        doResponse(res, SC_OK, exchangeResponseDto);
     }
 
 }

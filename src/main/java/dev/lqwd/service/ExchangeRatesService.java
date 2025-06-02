@@ -9,7 +9,6 @@ import dev.lqwd.entity.Currency;
 import dev.lqwd.entity.ExchangeRate;
 import dev.lqwd.mapper.ExchangeRateMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRatesService {
@@ -18,66 +17,62 @@ public class ExchangeRatesService {
     private final static String NOT_FOUND_PAIR = "The exchange rate for the pair was not found";
     private final ExchangeRateDao exchangeRateDao;
     private final CurrencyDao currencyDao;
-    private final ExchangeRateMapper exchangeRateMapper;
+    private final ExchangeRateMapper mapper = ExchangeRateMapper.INSTANCE;
 
     public ExchangeRatesService() {
 
         this.exchangeRateDao = new ExchangeRateDao();
-        this.exchangeRateMapper = ExchangeRateMapper.INSTANCE;
         this.currencyDao = new CurrencyDao();
     }
 
     public ExchangeRateResponseDto getByPair(String from, String to) {
 
-        ExchangeRate exRateEntity = exchangeRateDao.getByPair(from, to)
+        ExchangeRate exRateEntity = exchangeRateDao.findByPair(from, to)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_PAIR));
 
-        return exchangeRateMapper.toResponseDto(exRateEntity);
+        return mapper.toExchangeResponseDto(exRateEntity);
     }
 
     public List<ExchangeRateResponseDto> getAll() {
 
-        List<ExchangeRate> exRates = exchangeRateDao.getAll();
-        List<ExchangeRateResponseDto> exRatesDto = new ArrayList<>();
+        List<ExchangeRate> exRates = exchangeRateDao.findAll();
 
-        for (ExchangeRate exRate : exRates) {
-            exRatesDto.add(exchangeRateMapper.toResponseDto(exRate));
-        }
-
-        return exRatesDto;
+        return exRates.stream()
+                .map(mapper::toExchangeResponseDto)
+                .toList();
     }
 
-    public ExchangeRateResponseDto save(ExchangeRateRequestDto requestDto) {
+    public ExchangeRateResponseDto save(ExchangeRateRequestDto exRateRequestDto) {
 
-        ExchangeRate exRateToDao = getExchangeRate(requestDto);
+        ExchangeRate exRate = getExchangeRate(exRateRequestDto);
 
-        ExchangeRate exRateFromDao = exchangeRateDao.save(exRateToDao);
+        ExchangeRate SavedExRate = exchangeRateDao.save(exRate);
 
-        return exchangeRateMapper.toResponseDto(exRateFromDao);
+        return mapper.toExchangeResponseDto(SavedExRate);
     }
 
-    public ExchangeRateResponseDto update(ExchangeRateRequestDto requestDto) {
+    public ExchangeRateResponseDto update(ExchangeRateRequestDto exRateRequestDto) {
 
-        ExchangeRate exRate = getExchangeRate(requestDto);
+        ExchangeRate exRate = getExchangeRate(exRateRequestDto);
 
         ExchangeRate exRateEntity = exchangeRateDao.update(exRate)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_PAIR));
 
-        return exchangeRateMapper.toResponseDto(exRateEntity);
+        return mapper.toExchangeResponseDto(exRateEntity);
     }
 
-    private ExchangeRate getExchangeRate(ExchangeRateRequestDto requestDto) {
+    private ExchangeRate getExchangeRate(ExchangeRateRequestDto exRateRequestDto) {
 
         return new ExchangeRate(
-                codeToCurrency(requestDto.getBaseCurrencyCode()),
-                codeToCurrency(requestDto.getTargetCurrencyCode()),
-                requestDto.getRate()
+                codeToCurrency(exRateRequestDto.getBaseCurrencyCode()),
+                codeToCurrency(exRateRequestDto.getTargetCurrencyCode()),
+                exRateRequestDto.getRate()
         );
     }
 
     private Currency codeToCurrency(String code) {
 
-        return currencyDao.getByCode(code)
+        return currencyDao.findByCode(code)
                 .orElseThrow(() -> new NotFoundException(String.format(NO_CURRENCY_CODE_EXIST, code)));
     }
 

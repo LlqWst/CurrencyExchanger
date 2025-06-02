@@ -4,7 +4,7 @@ import dev.lqwd.dao.ExchangeRateDao;
 import dev.lqwd.dto.ExchangeRequestDto;
 import dev.lqwd.dto.ExchangeResponseDto;
 import dev.lqwd.entity.ExchangeRate;
-import dev.lqwd.exception.BadRequestException;
+import dev.lqwd.exception.NotFoundException;
 import dev.lqwd.mapper.CurrencyMapper;
 
 import java.math.BigDecimal;
@@ -33,14 +33,14 @@ public class ExchangeService {
         BigDecimal amount = requestDto.getAmount();
 
         ExchangeRate exchangeRate = getRateBaseOnPair(baseCode, targetCode)
-                .orElseThrow(() -> new BadRequestException(NO_COURSE_EXIST));
+                .orElseThrow(() -> new NotFoundException(NO_COURSE_EXIST));
 
         BigDecimal convertedAmount = amount.multiply(exchangeRate.getRate())
                 .setScale(VIEW_SCALE, RoundingMode.HALF_EVEN);
 
         return new ExchangeResponseDto(
-                currencyMapper.toResponseDto(exchangeRate.getBaseCurrency()),
-                currencyMapper.toResponseDto(exchangeRate.getTargetCurrency()),
+                currencyMapper.toCurrencyResponseDto(exchangeRate.getBaseCurrency()),
+                currencyMapper.toCurrencyResponseDto(exchangeRate.getTargetCurrency()),
                 exchangeRate.getRate().setScale(VIEW_SCALE, RoundingMode.HALF_EVEN),
                 amount.setScale(VIEW_SCALE, RoundingMode.HALF_EVEN),
                 convertedAmount
@@ -49,7 +49,7 @@ public class ExchangeService {
 
     private Optional<ExchangeRate> getRateBaseOnPair(String baseCode, String targetCode) {
 
-        Optional<ExchangeRate> exchangeRate = exchangeRateDao.getByPair(baseCode, targetCode);
+        Optional<ExchangeRate> exchangeRate = exchangeRateDao.findByPair(baseCode, targetCode);
 
         if (exchangeRate.isEmpty()) {
             exchangeRate = getIndirectRate(baseCode, targetCode);
@@ -64,7 +64,7 @@ public class ExchangeService {
 
     private Optional<ExchangeRate> getIndirectRate(String baseCode, String targetCode) {
 
-        Optional<ExchangeRate> exchangeRate = exchangeRateDao.getByPair(targetCode, baseCode);
+        Optional<ExchangeRate> exchangeRate = exchangeRateDao.findByPair(targetCode, baseCode);
 
         if (exchangeRate.isEmpty()) {
             return Optional.empty();
@@ -82,8 +82,8 @@ public class ExchangeService {
 
     private Optional<ExchangeRate> getCrossRate(String baseCode, String targetCode) {
 
-        Optional<ExchangeRate> UsdToBaseRate = exchangeRateDao.getByPair(USD, targetCode);
-        Optional<ExchangeRate> UsdToTargetRate = exchangeRateDao.getByPair(USD, baseCode);
+        Optional<ExchangeRate> UsdToBaseRate = exchangeRateDao.findByPair(USD, targetCode);
+        Optional<ExchangeRate> UsdToTargetRate = exchangeRateDao.findByPair(USD, baseCode);
 
         if (UsdToBaseRate.isEmpty() || UsdToTargetRate.isEmpty()) {
             return Optional.empty();

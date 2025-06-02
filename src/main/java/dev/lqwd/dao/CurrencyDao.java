@@ -18,7 +18,7 @@ public class CurrencyDao {
     private final static String DB_ERROR_SAVE = "Failed to save currency with code '%s' to the database";
     private final static String DB_ERROR_ALREADY_EXIST = "Currency with code '%s' already exist";
 
-    public Optional<Currency> getByCode(String code) {
+    public Optional<Currency> findByCode(String code) {
 
         String query = """
                 SELECT *
@@ -44,7 +44,7 @@ public class CurrencyDao {
         }
     }
 
-    public Optional<Currency> getById(Long id) {
+    public Optional<Currency> findById(Long id) {
 
         String query = """
                 SELECT *
@@ -70,9 +70,12 @@ public class CurrencyDao {
         }
     }
 
-    public List<Currency> getAll() {
+    public List<Currency> findAll() {
 
-        String query = "SELECT * FROM Currencies";
+        String query = """
+                SELECT *
+                FROM Currencies
+                """;
 
         try (Connection connection = CurrenciesListener.getConnection();
              Statement statement = connection.createStatement()) {
@@ -93,7 +96,11 @@ public class CurrencyDao {
 
     public Currency save(Currency currency) {
 
-        String sql = "INSERT INTO Currencies (Code, FullName, Sign) VALUES (?, ?, ?) RETURNING *";
+        String sql = """
+                INSERT INTO Currencies (Code, FullName, Sign)
+                VALUES (?, ?, ?)
+                RETURNING *
+                """;
 
         try (Connection connection = CurrenciesListener.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {

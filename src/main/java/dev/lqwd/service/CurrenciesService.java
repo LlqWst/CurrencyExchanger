@@ -7,57 +7,52 @@ import dev.lqwd.exception.NotFoundException;
 import dev.lqwd.mapper.CurrencyMapper;
 import dev.lqwd.entity.Currency;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CurrenciesService {
 
     private final static String NOT_EXIST_CURRENCY_CODE = "Not found currency with code %s";
     private final static String NOT_EXIST_CURRENCY_ID = "Not found currency with ID %s";
+
     private final CurrencyDao currencyDao;
-    private final CurrencyMapper currencyMapper;
+    private final CurrencyMapper mapper = CurrencyMapper.INSTANCE;
 
     public CurrenciesService() {
 
         this.currencyDao = new CurrencyDao();
-        this.currencyMapper = CurrencyMapper.INSTANCE;
     }
 
     public CurrencyResponseDto getByCode(String code) {
 
-        Currency currencyDao = this.currencyDao.getByCode(code)
+        Currency currency = currencyDao.findByCode(code)
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_EXIST_CURRENCY_CODE, code)));
 
-        return currencyMapper.toResponseDto(currencyDao);
+        return mapper.toCurrencyResponseDto(currency);
     }
 
     public CurrencyResponseDto get(Long id) {
 
-        Currency currencyDao = this.currencyDao.getById(id)
+        Currency currency = currencyDao.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_EXIST_CURRENCY_ID, id)));
 
-        return currencyMapper.toResponseDto(currencyDao);
+        return mapper.toCurrencyResponseDto(currency);
     }
 
     public List<CurrencyResponseDto> getAll() {
 
-        List<CurrencyResponseDto> currenciesDto = new ArrayList<>();
-        List<Currency> currencies = currencyDao.getAll();
+        List<Currency> currencies = currencyDao.findAll();
 
-        for (Currency currency : currencies) {
-            CurrencyResponseDto currencyResponseDto = currencyMapper.toResponseDto(currency);
-            currenciesDto.add(currencyResponseDto);
-        }
-
-        return currenciesDto;
+        return currencies.stream()
+                .map(mapper::toCurrencyResponseDto)
+                .toList();
     }
 
     public CurrencyResponseDto save(CurrencyRequestDto currencyRequestDto) {
 
-        Currency currency = currencyMapper.toCurrency(currencyRequestDto);
-        Currency currencyDao = this.currencyDao.save(currency);
+        Currency currency = mapper.toCurrency(currencyRequestDto);
+        Currency savedCurrency = currencyDao.save(currency);
 
-        return currencyMapper.toResponseDto(currencyDao);
+        return mapper.toCurrencyResponseDto(savedCurrency);
     }
 
 }

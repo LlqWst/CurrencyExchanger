@@ -24,7 +24,7 @@ public class ExchangeRateDao {
     private final static int SCALE = 6;
     private final static BigDecimal SCALE_MULTIPLY = BigDecimal.valueOf(10).pow(SCALE);
 
-    public Optional<ExchangeRate> getByPair(String from, String to) {
+    public Optional<ExchangeRate> findByPair(String from, String to) {
 
         String query = """
                 SELECT er.ID AS id,
@@ -55,7 +55,7 @@ public class ExchangeRateDao {
         }
     }
 
-    public List<ExchangeRate> getAll() {
+    public List<ExchangeRate> findAll() {
 
         String query = """
                 SELECT er.ID AS id,

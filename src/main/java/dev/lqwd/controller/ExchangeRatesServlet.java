@@ -1,10 +1,8 @@
 package dev.lqwd.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lqwd.dto.ExchangeRateResponseDto;
 import dev.lqwd.utils.Parser;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import dev.lqwd.dto.ExchangeRateRequestDto;
@@ -18,24 +16,16 @@ import static jakarta.servlet.http.HttpServletResponse.*;
 
 
 @WebServlet("/exchangeRates")
-public class ExchangeRatesServlet extends HttpServlet {
+public class ExchangeRatesServlet extends BasicServlet {
 
-    private ExchangeRatesService exchangeRatesService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Override
-    public void init() {
-
-        this.exchangeRatesService = new ExchangeRatesService();
-    }
+    private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
-        List<ExchangeRateResponseDto> exRatesDto = exchangeRatesService.getAll();
+        List<ExchangeRateResponseDto> exRatesDtos = exchangeRatesService.getAll();
 
-        res.setStatus(SC_OK);
-        objectMapper.writeValue(res.getWriter(), exRatesDto);
+        doResponse(res, SC_OK, exRatesDtos);
     }
 
     @Override
@@ -53,10 +43,9 @@ public class ExchangeRatesServlet extends HttpServlet {
                 targetCurrencyCode,
                 Parser.parsRate(rate)
         );
-        ExchangeRateResponseDto responseDto = exchangeRatesService.save(requestDto);
+        ExchangeRateResponseDto exchangeRateResponseDto = exchangeRatesService.save(requestDto);
 
-        res.setStatus(SC_CREATED);
-        objectMapper.writeValue(res.getWriter(), responseDto);
+        doResponse(res, SC_CREATED, exchangeRateResponseDto);
     }
 
 }
