@@ -1,6 +1,6 @@
 package dev.lqwd.dao;
 
-import dev.lqwd.config.CurrenciesListener;
+import dev.lqwd.utils.CurrenciesListener;
 import dev.lqwd.entity.Currency;
 import dev.lqwd.exception.DataBaseException;
 import dev.lqwd.exception.ExistInDataBaseException;

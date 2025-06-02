@@ -1,6 +1,6 @@
 package dev.lqwd.dao;
 
-import dev.lqwd.config.CurrenciesListener;
+import dev.lqwd.utils.CurrenciesListener;
 import dev.lqwd.entity.Currency;
 import dev.lqwd.entity.ExchangeRate;
 import dev.lqwd.exception.DataBaseException;
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class ExchangeRateDao {
-
 
     private final static String DB_ERROR_READ = "Failed to read ExchangeRates from the database";
     private final static String DB_ERROR_UPDATE = "Failed to update ExchangeRates to the database";

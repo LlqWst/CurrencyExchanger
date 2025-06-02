@@ -1,4 +1,4 @@
-package dev.lqwd.config;
+package dev.lqwd.utils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
