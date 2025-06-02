@@ -228,6 +228,8 @@ HTTP коды ответов:
 }
 ```
 
+## Запуск программы
+
 - git clone https://github.com/LlqWst/CurrencyExchanger.git 
 - Указать в настройках Tomcat -> Deployment -> Application Context: '/CurrencyExchanger' (без кавычек)
 - Запустить Tomcat
